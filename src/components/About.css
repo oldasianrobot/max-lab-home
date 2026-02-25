@@ -1,0 +1,194 @@
+/* ============================================
+   About — Studio context section
+   ============================================ */
+.about {
+    position: relative;
+    border-top: 1px solid var(--color-border-subtle);
+}
+
+.about__layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: center;
+    margin-top: var(--space-12);
+}
+
+/* Text block */
+.about__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.about__heading {
+    font-family: var(--font-body);
+    font-size: var(--text-3xl);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--color-text-primary);
+}
+
+.about__body {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-secondary);
+}
+
+.about__body+.about__body {
+    margin-top: var(--space-2);
+}
+
+/* Architectural SVG element */
+.about__visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.about__svg {
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .about__layout {
+        grid-template-columns: 1fr;
+        gap: var(--space-10);
+    }
+
+    .about__visual {
+        order: -1;
+    }
+
+    .about__svg {
+        max-width: 280px;
+    }
+}
+
+/* --- Orbiting squares animation --- */
+
+/* Orbit containers rotate around SVG center (200, 200) */
+.about__orbit {
+    transform-origin: 200px 200px;
+}
+
+.about__orbit--1 {
+    animation: aboutOrbit 35s linear infinite;
+}
+
+.about__orbit--2 {
+    animation: aboutOrbit 28s linear infinite reverse;
+}
+
+.about__orbit--3 {
+    animation: aboutOrbit 22s linear infinite;
+}
+
+@keyframes aboutOrbit {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Squares: counter-rotate to stay upright + morph size */
+.about__square--1 {
+    transform-origin: 160px 150px;
+    animation: aboutSquare1 35s linear infinite;
+}
+
+.about__square--2 {
+    transform-origin: 265px 245px;
+    animation: aboutSquare2 28s linear infinite;
+}
+
+.about__square--3 {
+    transform-origin: 90px 270px;
+    animation: aboutSquare3 22s linear infinite;
+}
+
+@keyframes aboutSquare1 {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: rotate(-90deg) scale(1.25);
+    }
+
+    50% {
+        transform: rotate(-180deg) scale(0.8);
+    }
+
+    75% {
+        transform: rotate(-270deg) scale(1.15);
+    }
+
+    100% {
+        transform: rotate(-360deg) scale(1);
+    }
+}
+
+@keyframes aboutSquare2 {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: rotate(90deg) scale(0.7);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.3);
+    }
+
+    75% {
+        transform: rotate(270deg) scale(0.85);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+@keyframes aboutSquare3 {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: rotate(-90deg) scale(1.35);
+    }
+
+    50% {
+        transform: rotate(-180deg) scale(0.75);
+    }
+
+    75% {
+        transform: rotate(-270deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotate(-360deg) scale(1);
+    }
+}
+
+/* --- Reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+
+    .about__orbit,
+    .about__square--1,
+    .about__square--2,
+    .about__square--3 {
+        animation: none;
+    }
+}
