@@ -9,31 +9,45 @@
     overflow: hidden;
 }
 
-/* Canvas background */
-.hero__canvas {
+/* React Three Fiber Canvas container */
+.hero__canvas-container {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     z-index: 0;
+    background-color: var(--color-base);
+    /* Ensure the deep dark background */
 }
 
-/* Subtle vignette overlay */
+/* Subtle vignette overlay to blend edges */
 .hero__vignette {
     position: absolute;
     inset: 0;
     z-index: 1;
     background:
-        radial-gradient(ellipse at 50% 0%, transparent 50%, var(--color-base) 100%),
+        radial-gradient(ellipse at 50% 50%, transparent 40%, var(--color-base) 100%),
         linear-gradient(to bottom, transparent 60%, var(--color-base) 100%);
     pointer-events: none;
 }
 
-/* Content layer */
+/* Content layer — Cinematic Glassmorphism vibe */
 .hero__content {
     position: relative;
     z-index: 2;
     max-width: 800px;
+    padding: var(--space-8);
+    background: rgba(10, 15, 20, 0.4);
+    /* Slight tint */
+    backdrop-filter: blur(8px);
+    /* Glassmorphism for readability */
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+
+    /* Animation slightly delayed so canvas loads first visually */
+    opacity: 0;
+    animation: heroFadeUp 0.8s var(--ease-out) 0.5s forwards;
 }
 
 /* Overline label */
@@ -45,25 +59,6 @@
     text-transform: uppercase;
     color: var(--color-accent-cyan);
     margin-bottom: var(--space-6);
-    opacity: 0;
-    animation: heroFadeUp 0.8s var(--ease-out) 0.3s forwards;
-}
-
-/* Headline */
-.hero__title {
-    font-family: var(--font-ui);
-    font-size: var(--text-6xl);
-    font-weight: 300;
-    line-height: var(--leading-tight);
-    letter-spacing: var(--tracking-tight);
-    color: var(--color-text-primary);
-    margin-bottom: var(--space-6);
-    opacity: 0;
-    animation: heroFadeUp 0.8s var(--ease-out) 0.5s forwards;
-}
-
-.hero__title strong {
-    font-weight: 600;
 }
 
 /* Subtext */
@@ -71,10 +66,11 @@
     font-family: var(--font-body);
     font-size: var(--text-2xl);
     line-height: var(--leading-relaxed);
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
+    /* Brighter text to pop against glass */
     max-width: 640px;
-    opacity: 0;
-    animation: heroFadeUp 0.8s var(--ease-out) 0.7s forwards;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    /* extra legibility */
 }
 
 /* Scroll indicator */
@@ -134,9 +130,7 @@
 /* --- Reduced motion --- */
 @media (prefers-reduced-motion: reduce) {
 
-    .hero__label,
-    .hero__title,
-    .hero__sub,
+    .hero__content,
     .hero__scroll {
         opacity: 1;
         animation: none;
