@@ -128,7 +128,7 @@ export default function Hero() {
     return (
         <section className="hero" id="hero">
             <div className="hero__canvas-container" aria-hidden="true">
-                <Canvas camera={{ position: [0, 0, 1.2] }}>
+                <Canvas camera={{ position: [0, 0, 1.2] }} dpr={[1, 2]}>
                     <ParticleCloud prefersReducedMotion={reducedMotion} />
                 </Canvas>
             </div>
