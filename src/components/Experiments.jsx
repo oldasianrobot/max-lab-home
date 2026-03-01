@@ -9,6 +9,7 @@ const EXPERIMENTS = [
         desc: 'Tracking how inflation is impacting the prices of Asian foods in the U.S.',
         tag: 'Data Viz',
         tagType: 'cyan',
+        link: 'https://inflation.mleungphd.org',
     },
     {
         num: '002',
@@ -23,6 +24,7 @@ const EXPERIMENTS = [
         ),
         tag: 'DATA VIZ',
         tagType: 'cyan',
+        link: 'https://aifinance.mleungphd.org',
     },
     {
         num: '003',
@@ -76,7 +78,7 @@ export default function Experiments() {
 }
 
 /** Individual experiment card with mouse-tracking hover glow. */
-function ExperimentCard({ num, title, desc, tag, tagType }) {
+function ExperimentCard({ num, title, desc, tag, tagType, link }) {
     const cardRef = useRef(null)
 
     const handleMouseMove = (e) => {
@@ -88,12 +90,20 @@ function ExperimentCard({ num, title, desc, tag, tagType }) {
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
-            console.log(`Navigating to experiment: ${title}`)
+            if (link) {
+                window.open(link, '_blank', 'noopener,noreferrer')
+            } else {
+                console.log(`Navigating to experiment: ${title}`)
+            }
         }
     }
 
     const handleClick = () => {
-        console.log(`Navigating to experiment: ${title}`)
+        if (link) {
+            window.open(link, '_blank', 'noopener,noreferrer')
+        } else {
+            console.log(`Navigating to experiment: ${title}`)
+        }
     }
 
     return (
