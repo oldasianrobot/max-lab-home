@@ -1,9 +1,9 @@
 import './Contact.css'
 
 const SOCIAL_LINKS = [
-    { label: 'GitHub', href: 'https://github.com' },
-    { label: 'LinkedIn', href: 'https://linkedin.com' },
-    { label: 'Faculty Webpage', href: '#' },
+    { label: 'GitHub', href: 'https://github.com/oldasianrobot' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/maxwell-leung-24422a43/' },
+    { label: 'Faculty Webpage', href: 'https://portal.cca.edu/people/mleung/' },
 ]
 
 /**
@@ -23,8 +23,8 @@ export default function Contact() {
                         I occasionally share work on social platforms. For general
                         inquiries, email is best.
                     </p>
-                    <a href="mailto:hello@maxlab.studio" className="contact__email">
-                        <span>hello@maxlab.studio</span>
+                    <a href="mailto:hello@mleungphd.org" className="contact__email">
+                        <span>hello@mleungphd.org</span>
                         <span aria-hidden="true">↗</span>
                     </a>
                 </div>
