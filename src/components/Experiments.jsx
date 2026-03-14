@@ -28,31 +28,11 @@ const EXPERIMENTS = [
     },
     {
         num: '003',
-        title: 'Census Pulse Dashboard (In Progress)',
-        desc: 'Real-time exploration of U.S. Census Bureau microdata with dynamic filtering and geographic breakdowns.',
+        title: 'Disturbance Fields',
+        desc: 'Analyzing anti-Asian violence in San Francisco (2019–2022) through demographic saturation and incident reporting density.',
         tag: 'Data Viz',
         tagType: 'cyan',
-    },
-    {
-        num: '004',
-        title: 'Latent Space Gallery (In Progress)',
-        desc: 'Walk through the embedding space of a vision model. Drag to navigate, click to decode — see what the machine sees.',
-        tag: 'AI / Vision',
-        tagType: 'amber',
-    },
-    {
-        num: '005',
-        title: 'Policy Simulator (In Progress)',
-        desc: 'Agent-based model simulating the downstream effects of housing policy changes on neighborhood composition.',
-        tag: 'Simulation',
-        tagType: 'cyan',
-    },
-    {
-        num: '006',
-        title: 'Typographic Rhythm (In Progress)',
-        desc: 'A study in motion typography — letterforms responding to audio input in real time using the Web Audio API.',
-        tag: 'Creative',
-        tagType: 'amber',
+        link: 'https://disturbance.mleungphd.org',
     },
 ]
 
