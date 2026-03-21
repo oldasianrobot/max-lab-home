@@ -34,6 +34,22 @@ const EXPERIMENTS = [
         tagType: 'cyan',
         link: 'https://disturbance.mleungphd.org',
     },
+    {
+        num: '004',
+        title: 'This Is Not A Gap',
+        desc: 'Prototype on using radiant flares.',
+        tag: 'DATA VIZ',
+        tagType: 'cyan',
+        link: 'https://tinag_proto.mleungphd.org',
+    },
+    {
+        num: '005',
+        title: 'This Is Not A Gap: Fluid Record',
+        desc: 'An interactive generative art experience that renders anti-Asian hate crime data as live fluid trails — where each particle\'s color, weight, and trajectory carries the encoded record of violence, absence, and everything the data could not reach.',
+        tag: 'DATA VIZ',
+        tagType: 'cyan',
+        link: 'https://tinag_fluid.mleungphd.org',
+    },
 ]
 
 /**
