@@ -56,7 +56,7 @@ const EXPERIMENTS = [
         desc: 'This is a second iteration to focus on the singular fluid trail.',
         tag: 'DATA VIZ',
         tagType: 'cyan',
-        link: 'https://tinag-fluidv02-mleungphd.org',
+        link: 'https://tinag-fluidv02.mleungphd.org',
     },
 ]
 
