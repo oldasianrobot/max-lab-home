@@ -50,6 +50,14 @@ const EXPERIMENTS = [
         tagType: 'cyan',
         link: 'https://tinag-fluid.mleungphd.org',
     },
+    {
+        num: '006',
+        title: 'This Is Not A Gap: Fluid V02',
+        desc: 'This is a second iteration to focus on the singular fluid trail.',
+        tag: 'DATA VIZ',
+        tagType: 'cyan',
+        link: 'https://tinag-fluidv02-mleungphd.org',
+    },
 ]
 
 /**
