@@ -58,6 +58,14 @@ const EXPERIMENTS = [
         tagType: 'cyan',
         link: 'https://tinag-fluidv02.mleungphd.org',
     },
+    {
+        num: '007',
+        title: 'This Is Not A Gap: Sound Scape',
+        desc: 'A two-act, scroll-free data visualization of anti-Asian hate rates in the United States, expressed through generative sound and visual composition.',
+        tag: 'DATA VIZ',
+        tagType: 'cyan',
+        link: 'https://soundv01.mleungphd.org',
+    },
 ]
 
 /**
