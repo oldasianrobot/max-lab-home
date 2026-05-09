@@ -40,7 +40,7 @@ const EXPERIMENTS = [
         desc: 'Prototype on using radiant flares.',
         tag: 'DATA VIZ',
         tagType: 'cyan',
-        link: 'https://aavrv01-mleungphd.org',
+        link: 'https://aavrv01.mleungphd.org',
     },
     {
         num: '005',
@@ -48,7 +48,7 @@ const EXPERIMENTS = [
         desc: 'An interactive generative art experience that renders anti-Asian hate crime data as live fluid trails — where each particle\'s color, weight, and trajectory carries the encoded record of violence, absence, and everything the data could not reach.',
         tag: 'DATA VIZ',
         tagType: 'cyan',
-        link: 'https://aavr-fluid-mleungphd.org',
+        link: 'https://aavr.fluid.mleungphd.org',
     },
     {
         num: '006',
@@ -56,7 +56,7 @@ const EXPERIMENTS = [
         desc: 'This is a second iteration to focus on the singular fluid trail.',
         tag: 'DATA VIZ',
         tagType: 'cyan',
-        link: 'https://aavr-fluidv02-mleungphd.org',
+        link: 'https://aavr.fluidv02.mleungphd.org',
     },
     {
         num: '007',
@@ -64,7 +64,7 @@ const EXPERIMENTS = [
         desc: 'A two-act, scroll-free data visualization of anti-Asian hate rates in the United States, expressed through generative sound and visual composition.',
         tag: 'DATA VIZ',
         tagType: 'cyan',
-        link: 'https://aavr-soundv01-mleungphd.org',
+        link: 'https://aavr.soundv01.mleungphd.org',
     },
 ]
 
