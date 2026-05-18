@@ -119,7 +119,7 @@ function GlobalParticleCloud({ prefersReducedMotion }) {
         if (prefersReducedMotion) return
 
         // Auto-rotation (Z only — keeps clusters aligned along Y axis)
-        cloudRef.current.rotation.z -= delta / 20
+        cloudRef.current.rotation.y -= delta / 20
 
         // Mouse nudges camera rotation so the tilt feels local at any scroll depth
         const targetRotX = state.pointer.y * 0.15
@@ -129,34 +129,32 @@ function GlobalParticleCloud({ prefersReducedMotion }) {
     })
 
     return (
-        <group rotation={[0, 0, Math.PI / 4]}>
-            <points ref={cloudRef}>
-                <bufferGeometry>
-                    <bufferAttribute
-                        attach="attributes-position"
-                        count={positions.length / 3}
-                        array={positions}
-                        itemSize={3}
-                    />
-                    <bufferAttribute
-                        attach="attributes-color"
-                        count={colors.length / 3}
-                        array={colors}
-                        itemSize={3}
-                    />
-                </bufferGeometry>
-                <pointsMaterial
-                    size={0.015}
-                    map={circleTexture}
-                    alphaTest={0.01}
-                    vertexColors
-                    transparent
-                    depthWrite={false}
-                    sizeAttenuation
-                    blending={THREE.AdditiveBlending}
+        <points ref={cloudRef}>
+            <bufferGeometry>
+                <bufferAttribute
+                    attach="attributes-position"
+                    count={positions.length / 3}
+                    array={positions}
+                    itemSize={3}
                 />
-            </points>
-        </group>
+                <bufferAttribute
+                    attach="attributes-color"
+                    count={colors.length / 3}
+                    array={colors}
+                    itemSize={3}
+                />
+            </bufferGeometry>
+            <pointsMaterial
+                size={0.015}
+                map={circleTexture}
+                alphaTest={0.01}
+                vertexColors
+                transparent
+                depthWrite={false}
+                sizeAttenuation
+                blending={THREE.AdditiveBlending}
+            />
+        </points>
     )
 }
 
