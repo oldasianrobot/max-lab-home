@@ -110,15 +110,16 @@ function GlobalParticleCloud({ prefersReducedMotion }) {
     }, [])
 
     useFrame((state, delta) => {
-        if (!cloudRef.current || prefersReducedMotion) return
+        if (!cloudRef.current) return
 
-        // Slow auto-rotation of the entire cloud (same as original Hero)
-        cloudRef.current.rotation.x -= delta / 15
-        cloudRef.current.rotation.y -= delta / 20
-
-        // Scroll drives camera Y — lerp to the target cluster zone
+        // Scroll drives camera Y — always runs (user-initiated, not gratuitous animation)
         const targetY = scrollRef.current * CAMERA_Y_RANGE
         camera.position.y += (targetY - camera.position.y) * 0.05
+
+        if (prefersReducedMotion) return
+
+        // Auto-rotation (Z only — keeps clusters aligned along Y axis)
+        cloudRef.current.rotation.z -= delta / 20
 
         // Mouse nudges camera rotation so the tilt feels local at any scroll depth
         const targetRotX = state.pointer.y * 0.15
