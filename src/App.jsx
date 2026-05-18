@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import ParticleBackground from './components/ParticleBackground'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
 import Experiments from './components/Experiments'
@@ -40,6 +41,7 @@ export default function App() {
 
     return (
         <>
+            <ParticleBackground />
             <Nav />
             <main>
                 <Hero />
