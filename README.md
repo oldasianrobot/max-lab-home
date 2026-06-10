@@ -94,6 +94,7 @@ docs/
 
 ### June 2026
 
+- **008 + 009 deployed** — Both toys live: [empathy-detector.mleungphd.org](https://empathy-detector.mleungphd.org) and [sato-miller.mleungphd.org](https://sato-miller.mleungphd.org). Each has its own GitHub repo (`empathy-detector`, `sato-miller`) deployed via Vercel ("Other" preset, no build step) with Cloudflare DNS CNAMEs to `cname.vercel-dns.com`.
 - **Projects 008 + 009** — Added the Voight-Kampff Empathy Unit and the Sato-Miller AAPI Identity Test. The featured band is now dynamic (`FEATURED_COUNT` newest projects), rendering side by side as a diptych when more than one is featured. Cards support multiple tags; the new pair uses amber tags to set them apart from the cyan DATA VIZ series.
 - **Projects redesign** — Reordered newest first (007 → 001). The latest project renders as a full-width featured card with a "Latest" badge; the rest sit in a 2-column grid (down from 3) with roomier padding. Text fills the full card width.
 - **Writing & Research redesign** — Replaced the featured/list split with a single chronological timeline, newest first. Each entry has a prominent date column, serif title, and full abstract. Updated latest publication date to Feb 2026.
