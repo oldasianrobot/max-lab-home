@@ -66,7 +66,26 @@ const EXPERIMENTS = [
         tagType: 'cyan',
         link: 'https://aavr.soundv01.mleungphd.org',
     },
+    {
+        num: '008',
+        title: 'Voight-Kampff Empathy Unit',
+        desc: 'A browser-based homage to the Voight-Kampff machine from Blade Runner. Answer three questions while the unit magnifies your eye, renders a faux-thermal scan, and performs its HUMAN or REPLICANT verdict. The analysis is pure theater — nothing is recorded.',
+        tags: ['Interactive', 'Sci-Fi', 'Biometric Theater'],
+        tagType: 'amber',
+        link: 'https://empathy-detector.mleungphd.org',
+    },
+    {
+        num: '009',
+        title: 'Sato-Miller AAPI Identity Test',
+        desc: 'A satirical auxiliary to the Voight-Kampff unit (SM-1882) that performs racial classification of Asian American identity with total confidence and zero coherence. The machine is always the butt of the joke — never the person in the chair.',
+        tags: ['Interactive', 'Satire', 'AAPI Identity'],
+        tagType: 'amber',
+        link: 'https://sato-miller.mleungphd.org',
+    },
 ]
+
+/* How many of the newest projects render in the featured band */
+const FEATURED_COUNT = 2
 
 /**
  * Projects — Featured latest project plus grid of earlier cards.
@@ -77,13 +96,18 @@ const EXPERIMENTS = [
  */
 export default function Experiments() {
     const sorted = [...EXPERIMENTS].sort((a, b) => Number(b.num) - Number(a.num))
-    const [featured, ...rest] = sorted
+    const featured = sorted.slice(0, FEATURED_COUNT)
+    const rest = sorted.slice(FEATURED_COUNT)
 
     return (
         <section className="experiments section section-animate" id="experiments">
             <div className="container">
                 <p className="section-label">Projects</p>
-                <ExperimentCard {...featured} featured />
+                <div className="experiments__featured">
+                    {featured.map((exp) => (
+                        <ExperimentCard key={exp.num} {...exp} featured />
+                    ))}
+                </div>
                 <div className="experiments__grid">
                     {rest.map((exp) => (
                         <ExperimentCard key={exp.num} {...exp} />
@@ -95,7 +119,8 @@ export default function Experiments() {
 }
 
 /** Individual experiment card with mouse-tracking hover glow. */
-function ExperimentCard({ num, title, desc, tag, tagType, link, featured = false }) {
+function ExperimentCard({ num, title, desc, tag, tags, tagType, link, featured = false }) {
+    const tagList = tags ?? (tag ? [tag] : [])
     const cardRef = useRef(null)
 
     const handleMouseMove = (e) => {
@@ -140,8 +165,12 @@ function ExperimentCard({ num, title, desc, tag, tagType, link, featured = false
             </span>
             <h3 className="exp-card__title">{title}</h3>
             <p className="exp-card__desc">{desc}</p>
-            <span className={`exp-card__tag ${tagType === 'amber' ? 'exp-card__tag--amber' : ''}`}>
-                {tag}
+            <span className="exp-card__tags">
+                {tagList.map((t) => (
+                    <span key={t} className={`exp-card__tag ${tagType === 'amber' ? 'exp-card__tag--amber' : ''}`}>
+                        {t}
+                    </span>
+                ))}
             </span>
             <span className="exp-card__arrow" aria-hidden="true">→</span>
         </article>
