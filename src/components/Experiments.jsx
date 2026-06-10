@@ -69,18 +69,23 @@ const EXPERIMENTS = [
 ]
 
 /**
- * Projects — Grid of project cards.
+ * Projects — Featured latest project plus grid of earlier cards.
  *
- * Each card tracks mouse position for a radial-gradient hover glow effect,
- * creating the impression of a spotlight following the cursor.
+ * Ordered most-recent-first (num is chronological). Each card tracks mouse
+ * position for a radial-gradient hover glow effect, creating the impression
+ * of a spotlight following the cursor.
  */
 export default function Experiments() {
+    const sorted = [...EXPERIMENTS].sort((a, b) => Number(b.num) - Number(a.num))
+    const [featured, ...rest] = sorted
+
     return (
         <section className="experiments section section-animate" id="experiments">
             <div className="container">
                 <p className="section-label">Projects</p>
+                <ExperimentCard {...featured} featured />
                 <div className="experiments__grid">
-                    {EXPERIMENTS.map((exp) => (
+                    {rest.map((exp) => (
                         <ExperimentCard key={exp.num} {...exp} />
                     ))}
                 </div>
@@ -90,7 +95,7 @@ export default function Experiments() {
 }
 
 /** Individual experiment card with mouse-tracking hover glow. */
-function ExperimentCard({ num, title, desc, tag, tagType, link }) {
+function ExperimentCard({ num, title, desc, tag, tagType, link, featured = false }) {
     const cardRef = useRef(null)
 
     const handleMouseMove = (e) => {
@@ -121,7 +126,7 @@ function ExperimentCard({ num, title, desc, tag, tagType, link }) {
     return (
         <article
             ref={cardRef}
-            className="exp-card"
+            className={`exp-card${featured ? ' exp-card--featured' : ''}`}
             onMouseMove={handleMouseMove}
             onKeyDown={handleKeyDown}
             onClick={handleClick}
@@ -129,7 +134,10 @@ function ExperimentCard({ num, title, desc, tag, tagType, link }) {
             role="link"
             aria-label={`Experiment ${num}: ${title}`}
         >
-            <span className="exp-card__num">{num}</span>
+            <span className="exp-card__num">
+                {num}
+                {featured && <span className="exp-card__latest">Latest</span>}
+            </span>
             <h3 className="exp-card__title">{title}</h3>
             <p className="exp-card__desc">{desc}</p>
             <span className={`exp-card__tag ${tagType === 'amber' ? 'exp-card__tag--amber' : ''}`}>
