@@ -13,8 +13,8 @@ Five sections scroll as a single experience:
 | Section | Content |
 |---------|---------|
 | **Hero** | "Field Notes" landing with scroll indicator |
-| **Projects** | Seven data visualization experiments (001–007) |
-| **Writing** | Essays and publications |
+| **Projects** | Seven data visualization experiments, newest first — latest featured full-width, the rest in a 2-column grid |
+| **Writing** | Essays and publications in a chronological timeline, newest first |
 | **About** | Studio context and mission |
 | **Contact** | Links and reach |
 
@@ -85,3 +85,18 @@ docs/
     specs/    # Design specs
     plans/    # Implementation plans
 ```
+
+---
+
+## Changelog
+
+### June 2026
+
+- **Projects redesign** — Reordered newest first (007 → 001). The latest project renders as a full-width featured card with a "Latest" badge; the rest sit in a 2-column grid (down from 3) with roomier padding. Text fills the full card width.
+- **Writing & Research redesign** — Replaced the featured/list split with a single chronological timeline, newest first. Each entry has a prominent date column, serif title, and full abstract. Updated latest publication date to Feb 2026.
+- **Tooling** — Fixed `.claude/launch.json` dev-server port (5174 → 5173 to match Vite).
+
+### Earlier
+
+- Global fixed particle background with scroll-driven camera; Hero canvas delegated to it.
+- Y-axis cloud rotation so scroll clusters stay visible; reduced-motion support.
