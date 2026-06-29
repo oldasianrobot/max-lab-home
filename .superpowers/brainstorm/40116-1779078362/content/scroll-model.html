@@ -1,0 +1,89 @@
+<h2>How should the particle cloud behave across the full page?</h2>
+<p class="subtitle">The cloud currently lives only in the Hero. How does it extend as the user scrolls?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a0f;padding:16px;height:220px;position:relative;overflow:hidden;border-radius:6px 6px 0 0">
+      <!-- Fixed viewport canvas -->
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,229,204,0.08) 0%,transparent 70%);pointer-events:none"></div>
+      <!-- Particles scattered -->
+      <div style="position:absolute;inset:0">
+        <div style="position:absolute;width:2px;height:2px;background:#00e5cc;border-radius:50%;top:20%;left:30%;opacity:0.8"></div>
+        <div style="position:absolute;width:1px;height:1px;background:#78a0ff;border-radius:50%;top:45%;left:60%;opacity:0.6"></div>
+        <div style="position:absolute;width:2px;height:2px;background:#e5a045;border-radius:50%;top:70%;left:20%;opacity:0.7"></div>
+        <div style="position:absolute;width:1px;height:1px;background:#00e5cc;border-radius:50%;top:35%;left:75%;opacity:0.5"></div>
+        <div style="position:absolute;width:2px;height:2px;background:#c878dc;border-radius:50%;top:60%;left:45%;opacity:0.6"></div>
+        <div style="position:absolute;width:1px;height:1px;background:#78a0ff;border-radius:50%;top:15%;left:55%;opacity:0.4"></div>
+        <div style="position:absolute;width:1px;height:1px;background:#00e5cc;border-radius:50%;top:80%;left:70%;opacity:0.5"></div>
+      </div>
+      <!-- Sections overlaid -->
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;padding:8px">
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(0,229,204,0.15);border-radius:3px;padding:6px 8px;font-size:10px;color:#aaa">Hero</div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:3px;padding:6px 8px;font-size:10px;color:#aaa">Experiments</div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:3px;padding:6px 8px;font-size:10px;color:#aaa">Writing</div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:3px;padding:6px 8px;font-size:10px;color:#aaa">About</div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:3px;padding:6px 8px;font-size:10px;color:#aaa">Contact</div>
+      </div>
+      <div style="position:absolute;bottom:8px;right:8px;font-size:9px;color:rgba(0,229,204,0.5);text-transform:uppercase;letter-spacing:1px">Fixed · always visible</div>
+    </div>
+    <div class="card-body">
+      <h3>A — Fixed Ambient Background</h3>
+      <p>Canvas is fixed to the viewport. The same cloud is always visible behind every section as you scroll. Sections float over a persistent star field. Mouse still controls the cloud from anywhere on the page.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a0f;padding:16px;height:220px;position:relative;overflow:hidden;border-radius:6px 6px 0 0">
+      <!-- Travel through cloud -->
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(0,229,204,0.12) 0%,transparent 60%);pointer-events:none"></div>
+      <!-- Arrow showing travel -->
+      <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:9px;color:rgba(0,229,204,0.6);text-transform:uppercase;letter-spacing:1px">scroll</div>
+        <div style="width:1px;height:60px;background:linear-gradient(to bottom,rgba(0,229,204,0.6),transparent)"></div>
+        <div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid rgba(0,229,204,0.6)"></div>
+      </div>
+      <!-- Sections with depth cue -->
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;padding:8px;padding-right:36px">
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(0,229,204,0.25);border-radius:3px;padding:6px 8px;font-size:10px;color:#ccc">Hero <span style="color:rgba(0,229,204,0.5);font-size:9px">← dense cloud</span></div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:6px 8px;font-size:10px;color:#aaa">Experiments</div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:3px;padding:6px 8px;font-size:10px;color:#888">Writing</div>
+        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:3px;padding:6px 8px;font-size:10px;color:#666">About</div>
+        <div style="background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.03);border-radius:3px;padding:6px 8px;font-size:10px;color:#555">Contact <span style="color:rgba(229,160,69,0.4);font-size:9px">← sparse / amber</span></div>
+      </div>
+      <div style="position:absolute;bottom:8px;right:8px;font-size:9px;color:rgba(0,229,204,0.5);text-transform:uppercase;letter-spacing:1px">Camera travels</div>
+    </div>
+    <div class="card-body">
+      <h3>B — Camera Travels Through Cloud</h3>
+      <p>Scroll position moves the camera through the 3D particle sphere. Hero = you're inside the dense core. As you scroll down, the camera pulls back or through — cloud density and color shifts by section. Feels like a journey.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a0f;padding:16px;height:220px;position:relative;overflow:hidden;border-radius:6px 6px 0 0">
+      <!-- Very long cloud -->
+      <div style="position:absolute;left:0;right:0;top:0;bottom:0;background:linear-gradient(to bottom,rgba(0,229,204,0.1) 0%,rgba(120,160,255,0.06) 40%,rgba(229,160,69,0.05) 80%,rgba(200,120,220,0.04) 100%);pointer-events:none"></div>
+      <!-- Particles distributed across height -->
+      <div style="position:absolute;inset:0">
+        <div style="position:absolute;width:2px;height:2px;background:#00e5cc;border-radius:50%;top:8%;left:25%"></div>
+        <div style="position:absolute;width:1px;height:1px;background:#78a0ff;border-radius:50%;top:22%;left:65%"></div>
+        <div style="position:absolute;width:2px;height:2px;background:#78a0ff;border-radius:50%;top:38%;left:40%"></div>
+        <div style="position:absolute;width:1px;height:1px;background:#e5a045;border-radius:50%;top:55%;left:72%"></div>
+        <div style="position:absolute;width:2px;height:2px;background:#e5a045;border-radius:50%;top:70%;left:18%"></div>
+        <div style="position:absolute;width:1px;height:1px;background:#c878dc;border-radius:50%;top:85%;left:55%"></div>
+      </div>
+      <div style="position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,rgba(0,229,204,0.5),rgba(229,160,69,0.3),rgba(200,120,220,0.2))"></div>
+      <!-- Section labels on right -->
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:8px 8px 8px 16px">
+        <div style="font-size:9px;color:rgba(0,229,204,0.7)">Hero zone</div>
+        <div style="font-size:9px;color:rgba(120,160,255,0.6)">Experiments zone</div>
+        <div style="font-size:9px;color:rgba(229,160,69,0.5)">Writing zone</div>
+        <div style="font-size:9px;color:rgba(200,120,220,0.5)">About / Contact zone</div>
+      </div>
+      <div style="position:absolute;bottom:8px;right:8px;font-size:9px;color:rgba(0,229,204,0.5);text-transform:uppercase;letter-spacing:1px">Extended cloud</div>
+    </div>
+    <div class="card-body">
+      <h3>C — One Long Extended Cloud</h3>
+      <p>Particles are distributed across the full page height. Different color zones align with different sections — cyan near Hero, periwinkle by Experiments, amber near Writing, violet near Contact. Scrolling reveals new cloud regions.</p>
+    </div>
+  </div>
+</div>

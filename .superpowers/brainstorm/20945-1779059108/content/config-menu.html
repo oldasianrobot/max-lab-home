@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinematic UI — Configuration Menu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0D0D0F;
+    --text: #F2F0EC;
+    --accent: #1A3FCC;
+    --alert: #CC2200;
+    --micro: #6A6A7A;
+    --grid: rgba(200,200,208,0.20);
+    --border: rgba(200,200,208,0.25);
+  }
+
+  body {
+    font-family: 'Roboto Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: 74px 74px;
+  }
+
+  /* HUD top bar */
+  .hud-top {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 44px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+    z-index: 100;
+  }
+  .hud-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--micro); }
+  .rec-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--alert);
+    animation: blink 1s step-end infinite;
+    display: inline-block; margin-right: 6px;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .rec-label { font-size: 0.6rem; letter-spacing: 0.12em; color: var(--alert); text-transform: uppercase; display: flex; align-items: center; }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 72px 32px 80px;
+  }
+
+  /* page header */
+  .page-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+  }
+  .page-title { font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
+  .page-sub { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--micro); margin-top: 6px; }
+  .stage-badge {
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+    border: 1px solid var(--accent); color: var(--accent);
+    padding: 4px 10px;
+  }
+
+  /* section */
+  .section { margin-bottom: 48px; }
+  .section-header {
+    display: flex; align-items: baseline; gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px; margin-bottom: 20px;
+  }
+  .section-code { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+  .section-title { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text); }
+  .section-note { font-size: 0.6rem; color: var(--micro); letter-spacing: 0.08em; margin-left: auto; }
+
+  /* option grid */
+  .options-grid { display: grid; gap: 12px; }
+  .options-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .options-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .options-grid.cols-4-multi { grid-template-columns: repeat(4, 1fr); }
+
+  .opt {
+    border: 1px solid var(--border);
+    padding: 16px;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .opt:hover { border-color: rgba(200,200,208,0.5); background: rgba(255,255,255,0.02); }
+  .opt.selected { border-color: var(--accent); background: rgba(26,63,204,0.08); }
+  .opt.selected .opt-id { color: var(--accent); }
+
+  .opt-id { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--micro); text-transform: uppercase; margin-bottom: 10px; display: block; }
+  .opt-name { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 8px; line-height: 1.2; }
+  .opt-desc { font-size: 0.65rem; color: var(--micro); line-height: 1.5; letter-spacing: 0.02em; }
+
+  /* palette preview swatches */
+  .palette-preview {
+    display: flex; gap: 3px; margin-top: 12px;
+  }
+  .swatch {
+    height: 3px; flex: 1;
+  }
+
+  /* palette-specific colors for preview */
+  .p1-bg { background: #0D0D0F; border: 1px solid #333; }
+  .p1-text { background: #F2F0EC; }
+  .p1-accent { background: #1A3FCC; }
+  .p1-alert { background: #CC2200; }
+
+  .p2-bg { background: #0C0C10; border: 1px solid #333; }
+  .p2-text { background: #E8E8EC; }
+  .p2-accent { background: #00FF41; }
+  .p2-alert { background: #E83C20; }
+
+  .p3-bg { background: #F2F0EC; border: 1px solid #ccc; }
+  .p3-text { background: #111111; }
+  .p3-accent { background: #1A3FCC; }
+  .p3-alert { background: #CC2200; }
+
+  .p4-bg { background: #1C1A17; border: 1px solid #333; }
+  .p4-text { background: #F5F0E8; }
+  .p4-accent { background: #E06C2A; }
+  .p4-alert { background: #CC2200; }
+
+  /* palette mockup preview */
+  .palette-mockup {
+    margin-top: 10px;
+    height: 60px;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 6px 8px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  .pm-line { height: 1px; width: 100%; }
+  .pm-text-row { display: flex; gap: 4px; align-items: center; }
+  .pm-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .pm-bar { height: 2px; flex: 1; border-radius: 0; }
+  .pm-label { font-size: 0.45rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* env mockups */
+  .env-mockup {
+    margin-top: 10px;
+    height: 80px;
+    border: 1px solid var(--border);
+    background: #0D0D0F;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .env-label { font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--micro); position: absolute; bottom: 6px; left: 8px; }
+
+  /* monolith */
+  .monolith-wrap { position: relative; width: 50px; height: 60px; }
+  .monolith-face { position: absolute; border: 1px solid #1A3FCC; }
+  .mf-front { width: 30px; height: 50px; bottom: 0; left: 10px; background: rgba(26,63,204,0.05); }
+  .mf-top { width: 30px; height: 10px; top: 0; left: 10px; transform: skewX(-20deg); border-bottom: none; background: rgba(26,63,204,0.08); }
+  .mf-side { width: 12px; height: 50px; bottom: 0; right: 0; transform: skewY(-10deg); background: rgba(26,63,204,0.03); }
+
+  /* grid env */
+  .grid-env { width: 100%; height: 100%; position: relative; overflow: hidden; }
+  .grid-lines-h, .grid-lines-v { position: absolute; inset: 0; }
+  .gl-h { position: absolute; left: 0; right: 0; height: 1px; background: rgba(200,200,208,0.20); }
+  .gl-v { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(200,200,208,0.20); }
+  .floating-plane {
+    position: absolute;
+    border: 1px solid rgba(26,63,204,0.6);
+    background: rgba(26,63,204,0.05);
+    font-size: 0.4rem; color: rgba(200,200,208,0.5); letter-spacing: 0.08em;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* particle field */
+  .particle-field { position: relative; width: 100%; height: 100%; }
+  .particle { position: absolute; background: #1A3FCC; border-radius: 50%; }
+  .particle-line { position: absolute; background: rgba(26,63,204,0.4); height: 1px; transform-origin: left center; }
+
+  /* nav mockups */
+  .nav-mockup {
+    margin-top: 10px; height: 56px; border: 1px solid var(--border);
+    background: rgba(13,13,15,0.9); position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* scroll track */
+  .scroll-track { width: 80%; height: 2px; background: rgba(200,200,208,0.1); position: relative; }
+  .scroll-head { width: 8px; height: 8px; background: var(--accent); position: absolute; top: -3px; left: 25%; border: 1px solid var(--accent); }
+  .scroll-arrows { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 2px; }
+  .scroll-arrow { font-size: 0.5rem; color: var(--micro); }
+
+  /* hud nav */
+  .hud-nav { display: flex; gap: 4px; }
+  .hud-btn {
+    border: 1px solid var(--border); padding: 3px 8px;
+    font-size: 0.45rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--micro);
+  }
+  .hud-btn.active { border-color: var(--accent); color: var(--accent); }
+
+  /* cursor */
+  .cursor-wrap { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; gap: 16px; }
+  .cursor-dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+  .cursor-lines { position: relative; width: 40px; height: 40px; }
+  .cl { position: absolute; background: rgba(26,63,204,0.5); }
+  .cl-h { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+  .cl-v { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+
+  /* lens FX mockups */
+  .fx-mockup {
+    margin-top: 10px; height: 50px; border: 1px solid var(--border);
+    background: #0D0D0F; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .fx-text { font-size: 0.55rem; letter-spacing: 0.08em; color: var(--text); }
+  /* chromatic aberration effect */
+  .ca-r { position: absolute; color: rgba(255,0,0,0.6); transform: translate(2px, 0); }
+  .ca-g { position: absolute; color: rgba(0,255,0,0.6); }
+  .ca-b { position: absolute; color: rgba(0,0,255,0.6); transform: translate(-2px, 0); }
+  /* scanline */
+  .scanlines { position: absolute; inset: 0; pointer-events: none; }
+  .scanlines::after {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(to bottom, transparent 0px, transparent 1px, rgba(200,200,208,0.06) 1px, rgba(200,200,208,0.06) 2px);
+  }
+  /* ghost */
+  .ghost-wrap { position: relative; width: 60px; }
+  .ghost-box { position: absolute; border: 1px solid rgba(26,63,204,0.3); width: 40px; height: 24px; }
+  .ghost-box:nth-child(1) { left: 0; top: 0; opacity: 0.3; }
+  .ghost-box:nth-child(2) { left: 4px; top: 4px; opacity: 0.6; }
+  .ghost-box:nth-child(3) { left: 8px; top: 8px; opacity: 1; border-color: var(--accent); }
+  /* rec */
+  .rec-preview { display: flex; align-items: center; gap: 6px; }
+  .rec-dot-lg { width: 10px; height: 10px; border-radius: 50%; background: var(--alert); animation: blink 1s step-end infinite; }
+  .rec-txt { font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--alert); }
+
+  /* corner marks decoration */
+  .corner-mark {
+    position: absolute; width: 12px; height: 12px;
+    pointer-events: none;
+  }
+  .cm-tl { top: 6px; left: 6px; border-top: 1px solid var(--border); border-left: 1px solid var(--border); }
+  .cm-tr { top: 6px; right: 6px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .cm-bl { bottom: 6px; left: 6px; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); }
+  .cm-br { bottom: 6px; right: 6px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+
+  /* footer */
+  .footer-sig {
+    border-top: 1px solid var(--border);
+    padding-top: 16px; margin-top: 48px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .sig-line { font-size: 0.6rem; letter-spacing: 0.10em; color: var(--micro); }
+  .sig-hash { color: var(--accent); }
+
+  /* selected checkmark */
+  .opt.selected::after {
+    content: '✓';
+    position: absolute; top: 8px; right: 10px;
+    font-size: 0.65rem; color: var(--accent);
+  }
+
+  /* multi-select note */
+  .multi-note { font-size: 0.6rem; color: var(--micro); letter-spacing: 0.08em; margin-bottom: 12px; }
+
+  @media (max-width: 900px) {
+    .options-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .options-grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
+    .options-grid.cols-4-multi { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HUD top bar -->
+<div class="hud-top">
+  <span class="hud-label">MAX-LAB — KINEMATIC UI CONFIG // MICROGRAPHICS EDITION</span>
+  <span class="rec-label"><span class="rec-dot"></span>REC [ACTIVE]</span>
+</div>
+
+<div class="container">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">CONFIGURATION MENU</div>
+      <div class="page-sub">Select P · A · B · C before build begins</div>
+    </div>
+    <div class="stage-badge">STAGE 1 / 4</div>
+  </div>
+
+  <!-- ─── P. COLOR PROTOCOL ─────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-code">P</span>
+      <span class="section-title">Color Protocol</span>
+      <span class="section-note">SELECT ONE</span>
+    </div>
+
+    <div class="options-grid cols-4" id="p-group">
+
+      <div class="opt" data-group="p" data-choice="P1" onclick="selectSingle(this,'p-group')">
+        <span class="opt-id">P1</span>
+        <div class="opt-name">Blueprint Void</div>
+        <div class="opt-desc">Near-black void. Warm cream overlays. Deep blueprint blue wireframes. Default baseline.</div>
+        <div class="palette-mockup" style="background:#0D0D0F;">
+          <div class="corner-mark cm-tl"></div><div class="corner-mark cm-tr"></div>
+          <div class="corner-mark cm-bl"></div><div class="corner-mark cm-br"></div>
+          <div class="pm-text-row"><div class="pm-dot" style="background:#1A3FCC;"></div><div class="pm-bar" style="background:#F2F0EC;width:60%;"></div></div>
+          <div class="pm-line" style="background:rgba(200,200,208,0.20);"></div>
+          <div class="pm-text-row"><div class="pm-label" style="color:#F2F0EC;">MAXWELL LEUNG PHD</div></div>
+          <div class="pm-text-row"><div class="pm-bar" style="background:#1A3FCC;width:30%;"></div><div class="pm-bar" style="background:#CC2200;width:8%;"></div></div>
+        </div>
+        <div class="palette-preview">
+          <div class="swatch p1-bg"></div>
+          <div class="swatch p1-text"></div>
+          <div class="swatch p1-accent"></div>
+          <div class="swatch p1-alert"></div>
+        </div>
+      </div>
+
+      <div class="opt" data-group="p" data-choice="P2" onclick="selectSingle(this,'p-group')">
+        <span class="opt-id">P2</span>
+        <div class="opt-name">Dark Terminal</div>
+        <div class="opt-desc">Matrix green on near-black. Terminal aesthetic. High signal intensity.</div>
+        <div class="palette-mockup" style="background:#0C0C10;">
+          <div class="corner-mark cm-tl" style="border-color:rgba(0,255,65,0.3)"></div><div class="corner-mark cm-tr" style="border-color:rgba(0,255,65,0.3)"></div>
+          <div class="corner-mark cm-bl" style="border-color:rgba(0,255,65,0.3)"></div><div class="corner-mark cm-br" style="border-color:rgba(0,255,65,0.3)"></div>
+          <div class="pm-text-row"><div class="pm-dot" style="background:#00FF41;"></div><div class="pm-bar" style="background:#E8E8EC;width:60%;"></div></div>
+          <div class="pm-line" style="background:rgba(58,58,88,0.5);"></div>
+          <div class="pm-text-row"><div class="pm-label" style="color:#E8E8EC;">MAXWELL LEUNG PHD</div></div>
+          <div class="pm-text-row"><div class="pm-bar" style="background:#00FF41;width:30%;"></div><div class="pm-bar" style="background:#E83C20;width:8%;"></div></div>
+        </div>
+        <div class="palette-preview">
+          <div class="swatch p2-bg"></div>
+          <div class="swatch p2-text"></div>
+          <div class="swatch p2-accent"></div>
+          <div class="swatch p2-alert"></div>
+        </div>
+      </div>
+
+      <div class="opt" data-group="p" data-choice="P3" onclick="selectSingle(this,'p-group')">
+        <span class="opt-id">P3</span>
+        <div class="opt-name">Tactile Editorial</div>
+        <div class="opt-desc">Dark 3D void with floating cream overlay panels. Document-in-space effect. Light on dark.</div>
+        <div class="palette-mockup" style="background:#0D0D0F; border-color:rgba(200,200,208,0.15)">
+          <div class="corner-mark cm-tl"></div><div class="corner-mark cm-tr"></div>
+          <div class="corner-mark cm-bl"></div><div class="corner-mark cm-br"></div>
+          <div class="pm-text-row">
+            <div style="background:#F2F0EC;padding:2px 5px;flex:1;">
+              <div class="pm-label" style="color:#111111;">MAXWELL LEUNG PHD</div>
+            </div>
+          </div>
+          <div style="height:2px;"></div>
+          <div class="pm-text-row"><div class="pm-bar" style="background:#1A3FCC;width:25%;"></div><div class="pm-bar" style="background:rgba(255,255,255,0.1);width:50%;"></div></div>
+        </div>
+        <div class="palette-preview">
+          <div class="swatch p3-bg"></div>
+          <div class="swatch p3-text"></div>
+          <div class="swatch p3-accent"></div>
+          <div class="swatch p3-alert"></div>
+        </div>
+      </div>
+
+      <div class="opt" data-group="p" data-choice="P4" onclick="selectSingle(this,'p-group')">
+        <span class="opt-id">P4</span>
+        <div class="opt-name">Warm Oxide</div>
+        <div class="opt-desc">Dark warm charcoal. Rust-orange wireframes. Industrial signal aesthetic.</div>
+        <div class="palette-mockup" style="background:#1C1A17;">
+          <div class="corner-mark cm-tl" style="border-color:rgba(224,108,42,0.3)"></div><div class="corner-mark cm-tr" style="border-color:rgba(224,108,42,0.3)"></div>
+          <div class="corner-mark cm-bl" style="border-color:rgba(224,108,42,0.3)"></div><div class="corner-mark cm-br" style="border-color:rgba(224,108,42,0.3)"></div>
+          <div class="pm-text-row"><div class="pm-dot" style="background:#E06C2A;"></div><div class="pm-bar" style="background:#F5F0E8;width:60%;"></div></div>
+          <div class="pm-line" style="background:rgba(74,69,64,0.2);"></div>
+          <div class="pm-text-row"><div class="pm-label" style="color:#F5F0E8;">MAXWELL LEUNG PHD</div></div>
+          <div class="pm-text-row"><div class="pm-bar" style="background:#E06C2A;width:30%;"></div><div class="pm-bar" style="background:#CC2200;width:8%;"></div></div>
+        </div>
+        <div class="palette-preview">
+          <div class="swatch p4-bg"></div>
+          <div class="swatch p4-text"></div>
+          <div class="swatch p4-accent"></div>
+          <div class="swatch p4-alert"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── A. CORE ENVIRONMENT ───────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-code">A</span>
+      <span class="section-title">Core Environment</span>
+      <span class="section-note">SELECT ONE</span>
+    </div>
+
+    <div class="options-grid cols-3" id="a-group">
+
+      <div class="opt" data-group="a" data-choice="A1" onclick="selectSingle(this,'a-group')">
+        <span class="opt-id">A1</span>
+        <div class="opt-name">The Core Monolith</div>
+        <div class="opt-desc">Massive architectural geometric structure. Camera orbits. Wireframe edges in accent color. Faces at 5% opacity.</div>
+        <div class="env-mockup">
+          <div class="monolith-wrap">
+            <div class="monolith-face mf-top"></div>
+            <div class="monolith-face mf-front"></div>
+            <div class="monolith-face mf-side"></div>
+          </div>
+          <span class="env-label">ORBITAL // WIREFRAME</span>
+        </div>
+      </div>
+
+      <div class="opt" data-group="a" data-choice="A2" onclick="selectSingle(this,'a-group')">
+        <span class="opt-id">A2</span>
+        <div class="opt-name">The Infinite Grid</div>
+        <div class="opt-desc">Stark 3D floor grid projecting into perspective space. SVG elements (E58, E3, E68) float as textured planes above the surface.</div>
+        <div class="env-mockup" style="overflow:hidden;">
+          <div class="grid-env">
+            <div class="gl-h" style="top:30%;"></div>
+            <div class="gl-h" style="top:55%;"></div>
+            <div class="gl-h" style="top:75%;"></div>
+            <div class="gl-h" style="top:90%;"></div>
+            <div class="gl-v" style="left:20%;"></div>
+            <div class="gl-v" style="left:40%;"></div>
+            <div class="gl-v" style="left:60%;"></div>
+            <div class="gl-v" style="left:80%;"></div>
+            <div class="floating-plane" style="width:32px;height:20px;top:10%;left:15%;">E58</div>
+            <div class="floating-plane" style="width:20px;height:20px;top:5%;left:60%;border-color:rgba(26,63,204,0.4);">E3</div>
+            <div class="floating-plane" style="width:24px;height:16px;top:15%;right:10%;border-color:rgba(26,63,204,0.5);">E68</div>
+          </div>
+          <span class="env-label">GRID // SVG PLANES</span>
+        </div>
+      </div>
+
+      <div class="opt" data-group="a" data-choice="A3" onclick="selectSingle(this,'a-group')">
+        <span class="opt-id">A3</span>
+        <div class="opt-name">The Particle Field</div>
+        <div class="opt-desc">Abstract cloud of vertices reacting to system state. No bloom. Particles connect via 1px hairlines when within proximity — drafting-table aesthetic.</div>
+        <div class="env-mockup" style="overflow:hidden;">
+          <div class="particle-field">
+            <div class="particle" style="width:3px;height:3px;top:20%;left:25%;background:#1A3FCC;"></div>
+            <div class="particle" style="width:2px;height:2px;top:35%;left:45%;background:#1A3FCC;"></div>
+            <div class="particle" style="width:3px;height:3px;top:55%;left:30%;background:#1A3FCC;"></div>
+            <div class="particle" style="width:2px;height:2px;top:25%;left:65%;background:#1A3FCC;"></div>
+            <div class="particle" style="width:3px;height:3px;top:60%;left:70%;background:#1A3FCC;"></div>
+            <div class="particle" style="width:2px;height:2px;top:45%;left:55%;background:#1A3FCC;"></div>
+            <div class="particle" style="width:3px;height:3px;top:15%;left:80%;background:#1A3FCC;"></div>
+            <div class="particle" style="width:2px;height:2px;top:70%;left:50%;background:#1A3FCC;"></div>
+            <!-- hairlines -->
+            <div class="particle-line" style="width:90px;top:22%;left:25%;transform:rotate(12deg);"></div>
+            <div class="particle-line" style="width:70px;top:37%;left:43%;transform:rotate(-18deg);"></div>
+            <div class="particle-line" style="width:80px;top:57%;left:30%;transform:rotate(8deg);"></div>
+            <div class="particle-line" style="width:60px;top:27%;left:65%;transform:rotate(35deg);"></div>
+          </div>
+          <span class="env-label">PARTICLES // HAIRLINES</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── B. NAVIGATION & INTERACTION ──────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-code">B</span>
+      <span class="section-title">Navigation &amp; Interaction</span>
+      <span class="section-note">SELECT ONE</span>
+    </div>
+
+    <div class="options-grid cols-3" id="b-group">
+
+      <div class="opt" data-group="b" data-choice="B1" onclick="selectSingle(this,'b-group')">
+        <span class="opt-id">B1</span>
+        <div class="opt-name">Kinematic Scroll</div>
+        <div class="opt-desc">Scrolling drives the camera along a 3D linear track. Ease-out cubic only. No spring, no bounce, no elastic.</div>
+        <div class="nav-mockup">
+          <div class="scroll-track">
+            <div class="scroll-head"></div>
+          </div>
+          <div style="position:absolute;right:10px;display:flex;flex-direction:column;gap:3px;">
+            <div style="font-size:0.4rem;color:var(--micro);letter-spacing:0.1em;">↓ SCROLL</div>
+            <div style="font-size:0.4rem;color:var(--accent);letter-spacing:0.1em;">CAMERA →</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opt" data-group="b" data-choice="B2" onclick="selectSingle(this,'b-group')">
+        <span class="opt-id">B2</span>
+        <div class="opt-name">Cursor Parallax</div>
+        <div class="opt-desc">Camera shifts dynamically with pointer coordinates. Max 15° rotation, 2 world units translation. Ease-out cubic.</div>
+        <div class="nav-mockup">
+          <div class="cursor-wrap">
+            <div class="cursor-lines">
+              <div class="cl cl-h"></div>
+              <div class="cl cl-v"></div>
+              <div class="cursor-dot" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+            </div>
+            <div style="font-size:0.4rem;color:var(--micro);letter-spacing:0.08em;line-height:1.6;">
+              ±15° ROT<br>±2 UNITS
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opt" data-group="b" data-choice="B3" onclick="selectSingle(this,'b-group')">
+        <span class="opt-id">B3</span>
+        <div class="opt-name">HUD Interface</div>
+        <div class="opt-desc">Static 2D Heads-Up Display. Hard structural buttons (E35, E38, E68) control camera angles. 1px bordered, no fill. Hover: 5% accent fill.</div>
+        <div class="nav-mockup">
+          <div class="hud-nav">
+            <div class="hud-btn active">LAB</div>
+            <div class="hud-btn">WORK</div>
+            <div class="hud-btn">WRITING</div>
+            <div class="hud-btn">ABOUT</div>
+            <div class="hud-btn">CONTACT</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── C. LENS & RENDERING FX ───────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-code">C</span>
+      <span class="section-title">Lens &amp; Rendering FX</span>
+      <span class="section-note">SELECT MULTIPLE OR NONE</span>
+    </div>
+    <p class="multi-note">These layer on top of your core environment — all optional. Disabled on mobile for performance (except C2 and C4 which are CSS-only).</p>
+
+    <div class="options-grid cols-4-multi" id="c-group" data-multiselect>
+
+      <div class="opt" data-group="c" data-choice="C1" onclick="toggleMulti(this)">
+        <span class="opt-id">C1</span>
+        <div class="opt-name">Chromatic Aberration</div>
+        <div class="opt-desc">Subtle color fringing at screen boundaries. Max 2px offset. TSL shader on render pass.</div>
+        <div class="fx-mockup">
+          <div class="ca-r fx-text">SIGNAL</div>
+          <div class="ca-g fx-text">SIGNAL</div>
+          <div class="ca-b fx-text">SIGNAL</div>
+        </div>
+      </div>
+
+      <div class="opt" data-group="c" data-choice="C2" onclick="toggleMulti(this)">
+        <span class="opt-id">C2</span>
+        <div class="opt-name">Scanline Overlay</div>
+        <div class="opt-desc">CSS-only layer. Horizontal lines at 2px intervals, grid-line color at 8% opacity. Works on mobile.</div>
+        <div class="fx-mockup" style="position:relative;">
+          <div class="scanlines" style="position:absolute;inset:0;"></div>
+          <div class="scanlines" style="position:absolute;inset:0;"></div>
+          <span class="fx-text" style="position:relative;z-index:1;">DATA OUTPUT</span>
+        </div>
+      </div>
+
+      <div class="opt" data-group="c" data-choice="C3" onclick="toggleMulti(this)">
+        <span class="opt-id">C3</span>
+        <div class="opt-name">Motion Ghosting</div>
+        <div class="opt-desc">Temporal frame blending on moving elements. WebGLRenderTarget ping-pong at 85% decay. GPU shader.</div>
+        <div class="fx-mockup">
+          <div class="ghost-wrap" style="position:relative;height:32px;">
+            <div class="ghost-box" style="position:absolute;"></div>
+            <div class="ghost-box" style="position:absolute;left:5px;top:3px;"></div>
+            <div class="ghost-box" style="position:absolute;left:10px;top:6px;border-color:var(--accent);opacity:1;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opt" data-group="c" data-choice="C4" onclick="toggleMulti(this)">
+        <span class="opt-id">C4</span>
+        <div class="opt-name">REC Indicator</div>
+        <div class="opt-desc">Red dot blinks at 1-second intervals, top-right corner. Label: REC [ACTIVE]. Works on mobile.</div>
+        <div class="fx-mockup">
+          <div class="rec-preview">
+            <div class="rec-dot-lg"></div>
+            <div class="rec-txt">REC [ACTIVE]</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- footer signature -->
+  <div class="footer-sig">
+    <div>
+      <div class="sig-line">DESIGNED BY MAXWELL LEUNG, PH.D. USING CLAUDE CODE ©2026</div>
+      <div class="sig-line" style="margin-top:4px;"><span class="sig-hash">#VibeCodingIsLife</span></div>
+    </div>
+    <div style="text-align:right;">
+      <div class="sig-line">SN: 4892-001A-99X</div>
+      <div class="sig-line">REF: KUI-MG-V02</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // single-select group
+  function selectSingle(el, groupId) {
+    document.querySelectorAll(`[data-group="${el.dataset.group}"]`).forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    recordEvent(el.dataset.choice);
+  }
+  // multi-select toggle
+  function toggleMulti(el) {
+    el.classList.toggle('selected');
+    recordEvent(el.dataset.choice + (el.classList.contains('selected') ? ':on' : ':off'));
+  }
+  function recordEvent(choice) {
+    fetch('/select', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({type:'click', choice, timestamp: Date.now()})
+    }).catch(()=>{});
+  }
+</script>
+</body>
+</html>

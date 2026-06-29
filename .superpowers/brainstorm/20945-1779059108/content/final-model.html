@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Final Scroll Model — Active Theory Adapted</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #1C1A17; --text: #F5F0E8; --accent: #E06C2A;
+    --alert: #CC2200; --micro: #8A8070;
+    --grid: rgba(74,69,64,0.20); --border: rgba(74,69,64,0.50);
+    --surface: #221F1B;
+  }
+  body { font-family:'Roboto Mono',monospace; background:var(--bg); color:var(--text); min-height:100vh;
+    background-image:linear-gradient(to right,var(--grid) 1px,transparent 1px),linear-gradient(to bottom,var(--grid) 1px,transparent 1px);
+    background-size:74px 74px; }
+  .hud-top { position:fixed;top:0;left:0;right:0;height:44px;border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100; }
+  .hud-label { font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--micro); }
+  .rec-dot { width:8px;height:8px;border-radius:50%;background:var(--alert);animation:blink 1s step-end infinite;display:inline-block;margin-right:6px; }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  .rec-label { font-size:0.6rem;letter-spacing:0.12em;color:var(--alert);text-transform:uppercase;display:flex;align-items:center; }
+  .container { max-width:1200px;margin:0 auto;padding:72px 32px 80px; }
+  .page-header { border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:32px;display:flex;align-items:flex-end;justify-content:space-between; }
+  .page-title { font-size:clamp(1.4rem,3vw,2.2rem);font-weight:700;letter-spacing:-0.05em;line-height:1; }
+  .page-sub { font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--micro);margin-top:6px; }
+  .stage-badge { font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);padding:4px 10px; }
+  .section-header { display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:20px; }
+  .sc { font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent); }
+  .st { font-size:0.75rem;font-weight:600;letter-spacing:0.10em;text-transform:uppercase; }
+  .sn { font-size:0.6rem;color:var(--micro);letter-spacing:0.08em;margin-left:auto; }
+  .block { margin-bottom:40px; }
+
+  /* COMPARISON TABLE */
+  .compare-table { width:100%;border-collapse:collapse;margin-bottom:32px; }
+  .compare-table th { font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--micro);border-bottom:1px solid var(--border);padding:8px 12px;text-align:left;font-weight:500; }
+  .compare-table th:first-child { width:35%; }
+  .compare-table td { font-size:0.6rem;padding:9px 12px;border-bottom:1px solid rgba(74,69,64,0.25);vertical-align:top;line-height:1.5; }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .at-col { color:var(--micro); }
+  .ml-col { color:var(--text); }
+  .row-key { color:var(--accent);font-size:0.55rem;letter-spacing:0.08em; }
+
+  /* CAROUSEL DIAGRAM */
+  .carousel-diagram { position:relative;height:280px;background:#080705;border:1px solid var(--border);overflow:hidden;margin-bottom:16px; }
+  #carousel-canvas { position:absolute;inset:0;width:100%;height:100%; }
+  .cd-label { position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(224,108,42,0.5);white-space:nowrap;z-index:10; }
+  .cd-scroll-hint { position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:0.45rem;letter-spacing:0.10em;text-transform:uppercase;color:var(--micro);writing-mode:vertical-rl;z-index:10; }
+  .cd-counter { position:absolute;left:14px;top:14px;font-size:0.55rem;letter-spacing:0.10em;color:var(--accent);z-index:10; }
+  /* corner marks */
+  .cm{position:absolute;width:10px;height:10px;}
+  .cm-tl{top:6px;left:6px;border-top:1px solid var(--accent);border-left:1px solid var(--accent);}
+  .cm-tr{top:6px;right:6px;border-top:1px solid var(--accent);border-right:1px solid var(--accent);}
+  .cm-bl{bottom:6px;left:6px;border-bottom:1px solid var(--accent);border-left:1px solid var(--accent);}
+  .cm-br{bottom:6px;right:6px;border-bottom:1px solid var(--accent);border-right:1px solid var(--accent);}
+  .scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 1px,rgba(74,69,64,0.05) 1px,rgba(74,69,64,0.05) 2px);}
+
+  /* SCROLL TIMELINE */
+  .timeline { border:1px solid var(--border);background:var(--surface); }
+  .tl-row { display:grid;grid-template-columns:100px 1fr 180px;border-bottom:1px solid rgba(74,69,64,0.3); }
+  .tl-row:last-child { border-bottom:none; }
+  .tl-row.phase-header { background:rgba(224,108,42,0.05);border-bottom-color:var(--border); }
+  .tl-scroll { font-size:0.5rem;letter-spacing:0.10em;color:var(--micro);text-transform:uppercase;padding:10px 12px;border-right:1px solid rgba(74,69,64,0.3);display:flex;align-items:center; }
+  .tl-content { padding:10px 14px; }
+  .tl-phase-name { font-size:0.6rem;font-weight:600;letter-spacing:0.08em;color:var(--accent);text-transform:uppercase;margin-bottom:2px; }
+  .tl-desc { font-size:0.55rem;color:var(--micro);line-height:1.5;letter-spacing:0.02em; }
+  .tl-desc strong { color:var(--text); }
+  .tl-meta { font-size:0.48rem;letter-spacing:0.08em;color:var(--micro);padding:10px 12px;border-left:1px solid rgba(74,69,64,0.3);display:flex;flex-direction:column;justify-content:center;gap:3px; }
+  .tl-meta span { color:var(--text); }
+  .tl-num { font-size:0.7rem;font-weight:700;color:var(--accent); }
+
+  .footer-sig { border-top:1px solid var(--border);padding-top:14px;margin-top:40px;display:flex;justify-content:space-between; }
+  .sig-line { font-size:0.58rem;letter-spacing:0.10em;color:var(--micro); }
+  .sig-hash { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="hud-top">
+  <span class="hud-label">MAX-LAB — FINAL SCROLL MODEL // ACTIVE THEORY CAROUSEL ADAPTED</span>
+  <span class="rec-label"><span class="rec-dot"></span>REC [ACTIVE]</span>
+</div>
+<div class="container">
+  <div class="page-header">
+    <div>
+      <div class="page-title">FINAL SCROLL MODEL</div>
+      <div class="page-sub">Vertical scroll → horizontal 3D carousel beside tornado vortex</div>
+    </div>
+    <div class="stage-badge">STAGE 2 LOCKED</div>
+  </div>
+
+  <!-- COMPARISON -->
+  <div class="block">
+    <div class="section-header">
+      <span class="sc">REF</span>
+      <span class="st">Active Theory Model → Max's Lab Adaptation</span>
+      <span class="sn">WHAT CHANGES, WHAT WE KEEP</span>
+    </div>
+    <table class="compare-table">
+      <thead><tr><th>ELEMENT</th><th>ACTIVE THEORY /WORK</th><th>MAX'S LAB</th></tr></thead>
+      <tbody>
+        <tr><td class="row-key">Scroll direction</td><td class="at-col">Vertical scroll → horizontal camera</td><td class="ml-col">Same — vertical scroll drives horizontal carousel</td></tr>
+        <tr><td class="row-key">3D background</td><td class="at-col">Dark void, subtly colored per project</td><td class="ml-col"><strong>Warm Oxide tornado vortex, always swirling.</strong> Left side of scene.</td></tr>
+        <tr><td class="row-key">Cards per view</td><td class="at-col">3 visible: prev (left-tilted), active (center), next (right-tilted)</td><td class="ml-col">Same 3-card layout — carousel beside the tornado column</td></tr>
+        <tr><td class="row-key">3D sculptural element</td><td class="at-col">Unique per project (iridescent organic forms)</td><td class="ml-col"><strong>Single shared element: the tornado vortex</strong> is the persistent "sculpture" for all experiments</td></tr>
+        <tr><td class="row-key">Left panel</td><td class="at-col">Category filters + AI chat, fixed</td><td class="ml-col"><strong>"THE LAB" label + counter (007 / 007)</strong>, fixed while carousel is active</td></tr>
+        <tr><td class="row-key">Card order</td><td class="at-col">Chronological / curated</td><td class="ml-col"><strong>Newest to oldest: 007 → 001</strong></td></tr>
+        <tr><td class="row-key">Project count</td><td class="at-col">~20 projects</td><td class="ml-col"><strong>7 experiments</strong></td></tr>
+        <tr><td class="row-key">Post-carousel</td><td class="at-col">No — loops or ends</td><td class="ml-col"><strong>Continues into Writing → About → Contact sections</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- LIVE CAROUSEL PREVIEW -->
+  <div class="block">
+    <div class="section-header">
+      <span class="sc">DEMO</span>
+      <span class="st">Live Carousel Preview — Experiment Phase</span>
+      <span class="sn">ANIMATED // SCROLL SIMULATION</span>
+    </div>
+    <div class="carousel-diagram">
+      <canvas id="carousel-canvas"></canvas>
+      <div class="scanlines"></div>
+      <div class="cm cm-tl"></div><div class="cm cm-tr"></div>
+      <div class="cm cm-bl"></div><div class="cm cm-br"></div>
+      <div class="cd-counter" id="counter">007 / 007</div>
+      <div class="cd-label">↓ SCROLL DRIVES CAMERA → THROUGH EXPERIMENTS</div>
+      <div class="cd-scroll-hint">SCROLL ↓</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <div style="font-size:0.5rem;letter-spacing:0.08em;color:var(--micro);border:1px solid var(--border);padding:4px 10px;">← PREV CARD: tilted left, recessed, dimmer</div>
+      <div style="font-size:0.5rem;letter-spacing:0.08em;color:var(--accent);border:1px solid var(--accent);padding:4px 10px;">CENTER CARD: face-on, large, full opacity</div>
+      <div style="font-size:0.5rem;letter-spacing:0.08em;color:var(--micro);border:1px solid var(--border);padding:4px 10px;">NEXT CARD → tilted right, recessed, dimmer</div>
+      <div style="font-size:0.5rem;letter-spacing:0.08em;color:rgba(224,108,42,0.5);border:1px solid rgba(224,108,42,0.3);padding:4px 10px;">TORNADO: left side, always swirling</div>
+    </div>
+  </div>
+
+  <!-- FULL SCROLL TIMELINE -->
+  <div class="block">
+    <div class="section-header">
+      <span class="sc">TIMELINE</span>
+      <span class="st">Complete Scroll Architecture</span>
+      <span class="sn">TOP → BOTTOM</span>
+    </div>
+    <div class="timeline">
+      <div class="tl-row phase-header">
+        <div class="tl-scroll">0%</div>
+        <div class="tl-content">
+          <div class="tl-phase-name">V0 — HERO</div>
+          <div class="tl-desc"><strong>Overhead vortex fills full screen.</strong> Camera directly above, looking down into the swirling rings. "MAX'S LAB" + tagline overlay. Scroll indicator pulses.</div>
+        </div>
+        <div class="tl-meta">CAM: <span>[0, 12, 0]</span><br>LOOK AT: <span>[0,0,0]</span></div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-scroll">5–15%</div>
+        <div class="tl-content">
+          <div class="tl-phase-name">PIVOT</div>
+          <div class="tl-desc">Camera arcs from overhead to side view. Tornado column comes into frame. Left panel fades in showing "THE LAB".</div>
+        </div>
+        <div class="tl-meta">GSAP: <span>spherical tween</span><br>DURATION: <span>1200ms</span></div>
+      </div>
+      <div class="tl-row phase-header">
+        <div class="tl-scroll">15%</div>
+        <div class="tl-content">
+          <div class="tl-phase-name">V1 — EXPERIMENTS BEGIN</div>
+          <div class="tl-desc">Tornado side view established. Counter shows <strong>007 / 007</strong>. First card (AAVR Sound) is center-front. No prev card visible yet.</div>
+        </div>
+        <div class="tl-meta">CAM: <span>[12, 1, 0]</span><br>CARDS: <span>1 visible</span></div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-scroll">15→72%</div>
+        <div class="tl-content">
+          <div class="tl-phase-name">CAROUSEL — 007 → 001</div>
+          <div class="tl-desc">Each ~8% of scroll brings next card center-front. <strong>3 cards visible at all times</strong> (prev tilted left, active center, next tilted right). Counter counts down. Tornado always visible left. Cards: 007 AAVR Sound · 006 AAVR Fluidv02 · 005 AAVR Fluid · 004 AAVRv01 · 003 Disturbance Fields · 002 AI Finance Web · 001 AAPI Grocery Index.</div>
+        </div>
+        <div class="tl-meta">STEPS: <span>7 cards</span><br>EACH: <span>~8% scroll</span></div>
+      </div>
+      <div class="tl-row phase-header">
+        <div class="tl-scroll">72%</div>
+        <div class="tl-content">
+          <div class="tl-phase-name">V2 — WRITING</div>
+          <div class="tl-desc">Carousel cards dissolve. Tornado fades to bg. Writing section fades in: <strong>2025 featured article → 2018 → 2013</strong>, listed newest to oldest.</div>
+        </div>
+        <div class="tl-meta">TRANSITION: <span>800ms fade</span></div>
+      </div>
+      <div class="tl-row phase-header">
+        <div class="tl-scroll">84%</div>
+        <div class="tl-content">
+          <div class="tl-phase-name">V3 — ABOUT</div>
+          <div class="tl-desc">Mission statement. Focus areas as labeled data fields. E3 compass + E68 arc decorations.</div>
+        </div>
+        <div class="tl-meta">TRANSITION: <span>800ms fade</span></div>
+      </div>
+      <div class="tl-row phase-header">
+        <div class="tl-scroll">100%</div>
+        <div class="tl-content">
+          <div class="tl-phase-name">V4 — CONTACT</div>
+          <div class="tl-desc">hello@mleungphd.org CTA. Social links: GitHub · LinkedIn · CCA. <strong>E61 signature strip — MANDATORY.</strong> Tornado idles at minimum speed.</div>
+        </div>
+        <div class="tl-meta">E61: <span>MANDATORY</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-sig">
+    <div>
+      <div class="sig-line">DESIGNED BY MAXWELL LEUNG, PH.D. USING CLAUDE CODE ©2026</div>
+      <div class="sig-line" style="margin-top:4px;"><span class="sig-hash">#VibeCodingIsLife</span></div>
+    </div>
+    <div style="text-align:right;">
+      <div class="sig-line">SN: 4892-001A-99X · REF: KUI-MG-V02</div>
+      <div class="sig-line">STAGE 2 LOCKED — READY FOR SPEC</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Live carousel animation
+(function(){
+  const canvas = document.getElementById('carousel-canvas');
+  const container = canvas.parentElement;
+  let W, H;
+  function resize(){ W=container.clientWidth; H=container.clientHeight; canvas.width=W; canvas.height=H; }
+  resize(); window.addEventListener('resize',resize);
+  const ctx = canvas.getContext('2d');
+
+  const experiments = ['007\nAAVR SOUND','006\nAAVR FLUIDV02','005\nAAVR FLUID','004\nAAVRv01','003\nDISTURBANCE','002\nAI FINANCE','001\nAAPI GROCERY'];
+  const counters = ['007 / 007','006 / 007','005 / 007','004 / 007','003 / 007','002 / 007','001 / 007'];
+  const counterEl = document.getElementById('counter');
+
+  let progress = 0; // 0..1 cycling
+  let lastT = null;
+  let currentCard = 0;
+
+  // Tornado on left side
+  const wallPts = [];
+  for(let i=0;i<180;i++){
+    wallPts.push({ y:Math.random(), angle:Math.random()*Math.PI*2, speed:Math.random()*2+1, sz:Math.random()*1.5+0.4, op:Math.random()*0.45+0.3 });
+  }
+  const wallAngles = wallPts.map(p=>p.angle);
+
+  function funnelR(yFrac){ return 0.38*Math.pow(1-yFrac*0.97,2.2)+0.02*(1-yFrac); }
+
+  function drawTornado(x0, w, h){
+    const cx = x0 + w*0.5;
+    // dark bg for tornado area
+    ctx.fillStyle='rgba(5,3,2,0.5)';
+    ctx.fillRect(x0,0,w,h);
+
+    // funnel outline
+    ctx.save();
+    ctx.beginPath();
+    for(let s=0;s<=50;s++){const yf=s/50,yp=yf*h,r=funnelR(yf)*w*0.9; if(s===0)ctx.moveTo(cx-r,yp); else ctx.lineTo(cx-r,yp);}
+    for(let s=50;s>=0;s--){const yf=s/50,yp=yf*h,r=funnelR(yf)*w*0.9; ctx.lineTo(cx+r,yp);}
+    ctx.closePath();
+    const ig=ctx.createLinearGradient(0,0,0,h);
+    ig.addColorStop(0,'rgba(8,6,4,0.8)'); ig.addColorStop(1,'rgba(4,3,2,0.95)');
+    ctx.fillStyle=ig; ctx.fill(); ctx.restore();
+
+    // wall particles
+    wallPts.forEach((p,i)=>{
+      const yf=p.y, angSpeed=p.speed*(1+(1-yf)*1.2);
+      wallAngles[i]+=angSpeed*0.016;
+      const r=funnelR(yf)*w*0.9;
+      const cosA=Math.cos(wallAngles[i]);
+      const xp=cx+cosA*r, yp=yf*h+Math.sin(wallAngles[i])*r*0.18;
+      ctx.beginPath(); ctx.arc(xp,yp,p.sz,0,Math.PI*2);
+      ctx.fillStyle=`rgba(224,108,42,${p.op*(0.3+0.7*Math.abs(cosA))})`;
+      ctx.fill();
+    });
+
+    // spine
+    const sg=ctx.createLinearGradient(cx,0,cx,h);
+    sg.addColorStop(0,'rgba(224,108,42,0)'); sg.addColorStop(0.7,'rgba(224,108,42,0.4)'); sg.addColorStop(1,'rgba(224,108,42,0.1)');
+    ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,h);
+    ctx.strokeStyle=sg; ctx.lineWidth=0.8; ctx.stroke();
+  }
+
+  function drawCard(cx, cy, w, h, alpha, tiltDir, label, isActive){
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy);
+    // tilt
+    if(tiltDir !== 0){
+      // Simple perspective simulation: scale x slightly
+      ctx.transform(1, 0, tiltDir*0.18, 1, 0, 0);
+    }
+    const cw = w, ch = h;
+    const x0 = -cw/2, y0 = -ch/2;
+
+    // card bg
+    ctx.fillStyle = isActive ? 'rgba(34,31,27,0.95)' : 'rgba(28,26,23,0.85)';
+    ctx.beginPath();
+    const r = 8;
+    ctx.moveTo(x0+r,y0); ctx.lineTo(x0+cw-r,y0); ctx.arcTo(x0+cw,y0,x0+cw,y0+r,r);
+    ctx.lineTo(x0+cw,y0+ch-r); ctx.arcTo(x0+cw,y0+ch,x0+cw-r,y0+ch,r);
+    ctx.lineTo(x0+r,y0+ch); ctx.arcTo(x0,y0+ch,x0,y0+ch-r,r);
+    ctx.lineTo(x0,y0+r); ctx.arcTo(x0,y0,x0+r,y0,r);
+    ctx.closePath(); ctx.fill();
+
+    // card border
+    ctx.strokeStyle = isActive ? `rgba(224,108,42,0.7)` : `rgba(74,69,64,0.5)`;
+    ctx.lineWidth = isActive ? 1 : 0.5; ctx.stroke();
+
+    // inner grid lines
+    ctx.strokeStyle='rgba(74,69,64,0.2)'; ctx.lineWidth=0.5;
+    for(let gx=x0+20;gx<x0+cw;gx+=20){ ctx.beginPath();ctx.moveTo(gx,y0);ctx.lineTo(gx,y0+ch);ctx.stroke(); }
+    for(let gy=y0+16;gy<y0+ch;gy+=16){ ctx.beginPath();ctx.moveTo(x0,gy);ctx.lineTo(x0+cw,gy);ctx.stroke(); }
+
+    // label
+    const lines = label.split('\n');
+    if(isActive){
+      ctx.fillStyle='rgba(224,108,42,0.7)';
+      ctx.font='500 9px Roboto Mono, monospace';
+      ctx.letterSpacing='0.12em';
+      ctx.fillText(lines[0], x0+12, y0+22);
+      ctx.fillStyle='rgba(245,240,232,0.9)';
+      ctx.font='700 14px Roboto Mono, monospace';
+      ctx.fillText(lines[1], x0+12, y0+44);
+      // accent bar
+      ctx.fillStyle='rgba(224,108,42,0.8)';
+      ctx.fillRect(x0+12,y0+52,24,1);
+      // link hint
+      ctx.fillStyle='rgba(130,128,112,0.6)';
+      ctx.font='400 8px Roboto Mono, monospace';
+      ctx.fillText('↗ OPEN PROJECT', x0+12, y0+ch-14);
+    } else {
+      ctx.fillStyle='rgba(130,128,112,0.5)';
+      ctx.font='500 8px Roboto Mono, monospace';
+      ctx.fillText(lines[0], x0+10, y0+20);
+      ctx.fillStyle='rgba(245,240,232,0.5)';
+      ctx.font='600 11px Roboto Mono, monospace';
+      ctx.fillText(lines[1], x0+10, y0+36);
+    }
+    ctx.restore();
+  }
+
+  let autoProgress = 0;
+
+  function draw(t){
+    if(lastT===null) lastT=t;
+    const dt=Math.min((t-lastT)/1000,0.05); lastT=t;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#050403'; ctx.fillRect(0,0,W,H);
+
+    // Auto-advance
+    autoProgress += dt * 0.12;
+    if(autoProgress > 1) autoProgress = 0;
+
+    // Which card is "active"
+    const totalCards = 7;
+    const rawCard = autoProgress * totalCards;
+    const activeIdx = Math.floor(rawCard) % totalCards;
+    const cardProgress = rawCard - Math.floor(rawCard); // 0..1 within current card
+
+    // Update counter
+    if(counterEl) counterEl.textContent = counters[activeIdx];
+
+    // TORNADO — left third of screen
+    const tornadoW = W * 0.28;
+    drawTornado(0, tornadoW, H);
+
+    // Vertical divider between tornado and carousel
+    const divX = tornadoW;
+    ctx.strokeStyle='rgba(74,69,64,0.4)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(divX,0); ctx.lineTo(divX,H); ctx.stroke();
+
+    // CAROUSEL — right two-thirds
+    const carouselX0 = tornadoW + 8;
+    const carouselW = W - carouselX0;
+    const centerX = carouselX0 + carouselW * 0.42;
+    const centerY = H * 0.5;
+
+    const activeW = Math.min(carouselW * 0.45, 200);
+    const activeH = activeW * 0.65;
+    const sideW = activeW * 0.72;
+    const sideH = sideW * 0.65;
+
+    // Smooth transition between cards using cardProgress
+    const offset = cardProgress * (activeW * 0.9 + 20);
+
+    // Draw prev card (to the left)
+    const prevIdx = (activeIdx - 1 + totalCards) % totalCards;
+    const prevX = centerX - activeW*0.5 - sideW*0.5 - 24 - offset;
+    if(prevX + sideW/2 > carouselX0){
+      drawCard(prevX, centerY, sideW, sideH, 0.45, -1, experiments[prevIdx], false);
+    }
+
+    // Draw next card (to the right)
+    const nextIdx = (activeIdx + 1) % totalCards;
+    const nextX = centerX + activeW*0.5 + sideW*0.5 + 24 - offset;
+    drawCard(nextX, centerY, sideW, sideH, 0.45, 1, experiments[nextIdx], false);
+
+    // Draw active card (center) — slides left as cardProgress increases
+    const activeX = centerX - offset * 0.5;
+    const activeAlpha = 1 - cardProgress * 0.4;
+    drawCard(activeX, centerY, activeW * (1 - cardProgress*0.12), activeH * (1 - cardProgress*0.12), activeAlpha, -cardProgress*0.15, experiments[activeIdx], true);
+
+    // Left panel
+    ctx.fillStyle='rgba(224,108,42,0.55)';
+    ctx.font='500 8px Roboto Mono, monospace';
+    ctx.fillText('THE LAB', 8, 22);
+    ctx.fillStyle='rgba(130,128,112,0.5)';
+    ctx.font='400 7px Roboto Mono, monospace';
+    ctx.fillText('MAXWELL LEUNG PHD', 8, 34);
+    ctx.fillStyle='rgba(224,108,42,0.3)';
+    ctx.fillRect(8, 38, 24, 0.5);
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<h2>Page structure with global particle background</h2>
+<p class="subtitle">Fixed canvas behind all content — sections scroll over the cloud</p>
+
+<div class="mockup" style="max-width:600px;margin:0 auto">
+  <div class="mockup-header">App.jsx — component tree</div>
+  <div class="mockup-body" style="background:#0d0d12;padding:0;font-family:monospace;font-size:12px">
+
+    <!-- Layer diagram -->
+    <div style="padding:16px;display:flex;flex-direction:column;gap:3px">
+
+      <!-- Z-layer stack legend -->
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+        <div style="width:10px;height:10px;background:rgba(0,229,204,0.4);border-radius:2px;flex-shrink:0"></div>
+        <span style="color:rgba(255,255,255,0.4);font-size:10px">z-index 0 — fixed background</span>
+        <div style="width:10px;height:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:2px;flex-shrink:0;margin-left:8px"></div>
+        <span style="color:rgba(255,255,255,0.4);font-size:10px">z-index 1 — page content</span>
+      </div>
+
+      <!-- ParticleBackground -->
+      <div style="background:rgba(0,229,204,0.06);border:1px solid rgba(0,229,204,0.3);border-radius:4px;padding:8px 12px;position:relative">
+        <span style="color:#00e5cc">ParticleBackground</span>
+        <span style="color:rgba(0,229,204,0.5);font-size:10px;margin-left:8px">position: fixed · inset: 0 · z-index: 0</span>
+        <div style="margin-top:8px;padding-left:12px;display:flex;flex-direction:column;gap:3px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="width:8px;height:8px;background:#00e5cc;border-radius:50%;opacity:0.7"></div>
+            <span style="color:rgba(255,255,255,0.5);font-size:10px">Hero cluster · Y=0 · cyan</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="width:8px;height:8px;background:#78a0ff;border-radius:50%;opacity:0.7"></div>
+            <span style="color:rgba(255,255,255,0.5);font-size:10px">Experiments cluster · Y=−8 · periwinkle</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="width:8px;height:8px;background:#aaa;border-radius:50%;opacity:0.5"></div>
+            <span style="color:rgba(255,255,255,0.5);font-size:10px">Writing cluster · Y=−16 · muted</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="width:8px;height:8px;background:#e5a045;border-radius:50%;opacity:0.7"></div>
+            <span style="color:rgba(255,255,255,0.5);font-size:10px">About cluster · Y=−24 · amber</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="width:8px;height:8px;background:#c878dc;border-radius:50%;opacity:0.7"></div>
+            <span style="color:rgba(255,255,255,0.5);font-size:10px">Contact cluster · Y=−32 · violet</span>
+          </div>
+          <div style="margin-top:4px;padding-top:4px;border-top:1px solid rgba(255,255,255,0.06);font-size:10px;color:rgba(255,255,255,0.35)">Camera Y lerps 0→−32 as page scrolls 0%→100%</div>
+        </div>
+      </div>
+
+      <div style="height:4px"></div>
+
+      <!-- Nav -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:8px 12px">
+        <span style="color:rgba(255,255,255,0.7)">Nav</span>
+        <span style="color:rgba(255,255,255,0.25);font-size:10px;margin-left:8px">z-index: 100 · transparent → frosted on scroll</span>
+      </div>
+
+      <!-- main -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px 12px">
+        <span style="color:rgba(255,255,255,0.5);font-size:10px">main · z-index: 1 · position: relative</span>
+        <div style="margin-top:6px;padding-left:12px;display:flex;flex-direction:column;gap:3px">
+
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center">
+            <span style="color:rgba(255,255,255,0.6);font-size:11px">Hero</span>
+            <span style="color:rgba(255,255,255,0.25);font-size:9px">canvas removed · label + subtitle text only</span>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center">
+            <span style="color:rgba(255,255,255,0.6);font-size:11px">Experiments</span>
+            <span style="color:rgba(255,255,255,0.25);font-size:9px">project cards · semi-transparent bg</span>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center">
+            <span style="color:rgba(255,255,255,0.6);font-size:11px">Writing</span>
+            <span style="color:rgba(255,255,255,0.25);font-size:9px">unchanged</span>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center">
+            <span style="color:rgba(255,255,255,0.6);font-size:11px">About</span>
+            <span style="color:rgba(255,255,255,0.25);font-size:9px">unchanged</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Contact/footer -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px 12px">
+        <span style="color:rgba(255,255,255,0.6);font-size:11px">Contact</span>
+        <span style="color:rgba(255,255,255,0.25);font-size:10px;margin-left:8px">footer · z-index: 1</span>
+      </div>
+
+    </div>
+
+    <!-- Scroll + camera diagram -->
+    <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06)">
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Scroll → Camera mapping</div>
+      <div style="display:flex;align-items:center;gap:0;height:24px">
+        <div style="flex:1;height:4px;background:linear-gradient(to right,rgba(0,229,204,0.6),rgba(120,160,255,0.5),rgba(229,160,69,0.4),rgba(200,120,220,0.3));border-radius:2px"></div>
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-left:8px;white-space:nowrap">camera Y: 0 → −32</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:3px">
+        <span style="font-size:9px;color:rgba(0,229,204,0.5)">scrollY = 0</span>
+        <span style="font-size:9px;color:rgba(200,120,220,0.5)">scrollY = 100%</span>
+      </div>
+      <div style="margin-top:8px;font-size:10px;color:rgba(255,255,255,0.3)">Mouse pointer applies ±0.3 rotation delta on top of scroll position — same lerp as current Hero (0.05 factor)</div>
+    </div>
+
+  </div>
+</div>

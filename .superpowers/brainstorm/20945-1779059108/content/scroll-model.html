@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scroll Model — Vortex Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #1C1A17; --text: #F5F0E8; --accent: #E06C2A;
+    --alert: #CC2200; --micro: #8A8070;
+    --grid: rgba(74,69,64,0.20); --border: rgba(74,69,64,0.50);
+    --surface: #221F1B;
+  }
+  body {
+    font-family: 'Roboto Mono', monospace;
+    background: var(--bg); color: var(--text); min-height: 100vh;
+    background-image: linear-gradient(to right, var(--grid) 1px, transparent 1px), linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: 74px 74px;
+  }
+  .hud-top { position:fixed;top:0;left:0;right:0;height:44px;border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100; }
+  .hud-label { font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--micro); }
+  .rec-dot { width:8px;height:8px;border-radius:50%;background:var(--alert);animation:blink 1s step-end infinite;display:inline-block;margin-right:6px; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+  .rec-label { font-size:0.6rem;letter-spacing:0.12em;color:var(--alert);text-transform:uppercase;display:flex;align-items:center; }
+  .container { max-width:1200px;margin:0 auto;padding:72px 32px 80px; }
+  .page-header { border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:40px;display:flex;align-items:flex-end;justify-content:space-between; }
+  .page-title { font-size:clamp(1.4rem,3vw,2.2rem);font-weight:700;letter-spacing:-0.05em;line-height:1; }
+  .page-sub { font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--micro);margin-top:6px; }
+  .stage-badge { font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);padding:4px 10px; }
+  .section-header { display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:24px; }
+  .section-code { font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent); }
+  .section-title { font-size:0.75rem;font-weight:600;letter-spacing:0.10em;text-transform:uppercase; }
+  .section-note { font-size:0.6rem;color:var(--micro);letter-spacing:0.08em;margin-left:auto; }
+  .block { margin-bottom:48px; }
+
+  /* ── SCROLL TIMELINE ── */
+  .timeline { position:relative; padding-left:120px; }
+  .tl-axis {
+    position:absolute; left:80px; top:0; bottom:0;
+    width:1px; background:var(--border);
+  }
+  .tl-phase { position:relative; margin-bottom:0; }
+  .tl-phase + .tl-phase { margin-top:0; }
+
+  /* phase header row */
+  .tl-phase-header {
+    display:flex; align-items:center; gap:16px;
+    padding: 14px 0 14px 24px;
+    border-bottom: 1px solid rgba(74,69,64,0.30);
+    position:relative;
+  }
+  .tl-phase-header::before {
+    content:''; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+    width:9px; height:9px; border:1px solid var(--accent); background:var(--bg);
+  }
+  .tl-phase-header.major::before { background:var(--accent); }
+  .tl-phase-header.sub::before { width:5px;height:5px;border-color:var(--border);left:-9px; }
+
+  .ph-scroll-label {
+    position:absolute; left:-115px; width:90px; text-align:right;
+    font-size:0.5rem; letter-spacing:0.10em; color:var(--micro); text-transform:uppercase;
+    top:50%; transform:translateY(-50%);
+  }
+  .ph-code { font-size:0.6rem;letter-spacing:0.15em;color:var(--accent);text-transform:uppercase;flex-shrink:0;width:40px; }
+  .ph-title { font-size:0.75rem;font-weight:600;letter-spacing:0.03em; }
+  .ph-desc { font-size:0.6rem;color:var(--micro);letter-spacing:0.02em;flex:1; }
+
+  /* sub-rows for experiments */
+  .tl-sub-row {
+    display:flex; align-items:center; gap:16px;
+    padding: 9px 0 9px 24px;
+    border-bottom: 1px solid rgba(74,69,64,0.15);
+    position:relative;
+  }
+  .tl-sub-row::before {
+    content:''; position:absolute; left:-9px; top:50%; transform:translateY(-50%);
+    width:5px; height:5px; border:1px solid rgba(74,69,64,0.5); background:var(--bg);
+  }
+  .sr-scroll { position:absolute;left:-115px;width:90px;text-align:right;font-size:0.45rem;letter-spacing:0.08em;color:rgba(130,128,112,0.6);text-transform:uppercase;top:50%;transform:translateY(-50%); }
+  .sr-num { font-size:0.55rem;color:var(--accent);letter-spacing:0.10em;width:36px;flex-shrink:0; }
+  .sr-title { font-size:0.65rem;font-weight:500;letter-spacing:0.02em; }
+  .sr-sub { font-size:0.5rem;color:var(--micro);letter-spacing:0.05em; }
+  .sr-tag { font-size:0.45rem;letter-spacing:0.10em;border:1px solid rgba(74,69,64,0.5);padding:1px 5px;color:var(--micro);text-transform:uppercase;flex-shrink:0;margin-left:auto; }
+  .sr-tag.emerge { border-color:rgba(224,108,42,0.5);color:var(--accent); }
+
+  /* ── VORTEX DIAGRAM ── */
+  .vortex-diagram {
+    display:grid; grid-template-columns:320px 1fr; gap:24px;
+    margin-bottom:24px;
+  }
+  .vortex-canvas {
+    height:320px; border:1px solid var(--border); background:#1C1A17;
+    position:relative; overflow:hidden;
+  }
+  /* SVG-drawn vortex */
+  .vortex-svg { position:absolute;inset:0;width:100%;height:100%; }
+
+  .vortex-legend { display:flex;flex-direction:column;gap:10px;justify-content:center; }
+  .legend-item { display:flex;align-items:flex-start;gap:10px; }
+  .legend-dot { width:8px;height:8px;flex-shrink:0;margin-top:3px; }
+  .legend-text h4 { font-size:0.65rem;font-weight:600;letter-spacing:0.05em;margin-bottom:2px; }
+  .legend-text p { font-size:0.55rem;color:var(--micro);letter-spacing:0.03em;line-height:1.5; }
+
+  /* card orbit mockup */
+  .orbit-states {
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+    margin-top:16px;
+  }
+  .orbit-state {
+    border:1px solid var(--border); padding:10px;
+    background:var(--surface); position:relative;
+  }
+  .os-label { font-size:0.5rem;letter-spacing:0.12em;color:var(--micro);text-transform:uppercase;margin-bottom:6px; }
+  .os-mini { height:60px;border:1px solid rgba(74,69,64,0.4);background:#1C1A17;position:relative;overflow:hidden;margin-bottom:6px; }
+  .os-desc { font-size:0.5rem;color:var(--micro);letter-spacing:0.03em;line-height:1.4; }
+
+  /* tiny vortex in state cards */
+  .mini-vortex { position:absolute;width:20px;height:20px;top:50%;left:50%;transform:translate(-50%,-50%); }
+  .mv-ring { position:absolute;border-radius:50%;border:1px solid; }
+  .mv-center { position:absolute;width:4px;height:4px;border-radius:50%;background:var(--accent);top:50%;left:50%;transform:translate(-50%,-50%); }
+  .mini-card-orbit {
+    position:absolute;
+    border:1px solid var(--accent);
+    background:rgba(224,108,42,0.08);
+    font-size:0.35rem;color:var(--accent);letter-spacing:0.06em;
+    display:flex;align-items:center;justify-content:center;
+    width:28px;height:18px;
+  }
+
+  /* nav spec */
+  .nav-spec { border:1px solid var(--border);background:var(--surface);padding:14px; }
+  .nav-row { display:flex;align-items:center;gap:16px;height:44px;border-bottom:1px solid rgba(74,69,64,0.3);padding:0 12px; }
+  .nav-logo { font-size:0.65rem;font-weight:700;letter-spacing:-0.03em; }
+  .nav-links { display:flex;gap:16px;margin-left:auto; }
+  .nav-link { font-size:0.55rem;letter-spacing:0.10em;text-transform:uppercase;color:var(--micro); }
+  .nav-link.active { color:var(--text);border-bottom:1px solid var(--accent);padding-bottom:1px; }
+  .nav-note { font-size:0.5rem;color:var(--micro);letter-spacing:0.06em;margin-top:10px;line-height:1.6; }
+
+  .footer-sig { border-top:1px solid var(--border);padding-top:16px;margin-top:48px;display:flex;justify-content:space-between;align-items:flex-end; }
+  .sig-line { font-size:0.6rem;letter-spacing:0.10em;color:var(--micro); }
+  .sig-hash { color:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="hud-top">
+  <span class="hud-label">MAX-LAB — VORTEX SCROLL ARCHITECTURE // CONFIRMED CONFIG</span>
+  <span class="rec-label"><span class="rec-dot"></span>REC [ACTIVE]</span>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">UPDATED CONTENT PLAN</div>
+      <div class="page-sub">Vortex entry · one-at-a-time experiment reveals · section transitions</div>
+    </div>
+    <div class="stage-badge">STAGE 2 REVISED</div>
+  </div>
+
+  <!-- VORTEX DIAGRAM -->
+  <div class="block">
+    <div class="section-header">
+      <span class="section-code">CORE</span>
+      <span class="section-title">The Vortex — Central 3D Element</span>
+      <span class="section-note">PARTICLE FIELD CONVERGES TO SPIRAL</span>
+    </div>
+
+    <div class="vortex-diagram">
+      <div class="vortex-canvas">
+        <svg class="vortex-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+          <!-- grid -->
+          <defs>
+            <pattern id="grid" width="37" height="37" patternUnits="userSpaceOnUse">
+              <path d="M 37 0 L 0 0 0 37" fill="none" stroke="rgba(74,69,64,0.2)" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="320" height="320" fill="url(#grid)"/>
+
+          <!-- vortex spiral rings — faint -->
+          <ellipse cx="160" cy="160" rx="110" ry="44" fill="none" stroke="rgba(224,108,42,0.08)" stroke-width="1"/>
+          <ellipse cx="160" cy="160" rx="80" ry="32" fill="none" stroke="rgba(224,108,42,0.12)" stroke-width="1"/>
+          <ellipse cx="160" cy="160" rx="52" ry="20" fill="none" stroke="rgba(224,108,42,0.18)" stroke-width="1"/>
+          <ellipse cx="160" cy="160" rx="28" ry="11" fill="none" stroke="rgba(224,108,42,0.28)" stroke-width="1"/>
+          <ellipse cx="160" cy="160" rx="12" ry="5" fill="none" stroke="rgba(224,108,42,0.45)" stroke-width="1"/>
+
+          <!-- radial lines from center -->
+          <line x1="160" y1="160" x2="270" y2="160" stroke="rgba(224,108,42,0.12)" stroke-width="0.5"/>
+          <line x1="160" y1="160" x2="50" y2="160" stroke="rgba(224,108,42,0.12)" stroke-width="0.5"/>
+          <line x1="160" y1="160" x2="160" y2="80" stroke="rgba(224,108,42,0.12)" stroke-width="0.5"/>
+          <line x1="160" y1="160" x2="160" y2="240" stroke="rgba(224,108,42,0.12)" stroke-width="0.5"/>
+          <line x1="160" y1="160" x2="238" y2="82" stroke="rgba(224,108,42,0.08)" stroke-width="0.5"/>
+          <line x1="160" y1="160" x2="82" y2="238" stroke="rgba(224,108,42,0.08)" stroke-width="0.5"/>
+          <line x1="160" y1="160" x2="238" y2="238" stroke="rgba(224,108,42,0.08)" stroke-width="0.5"/>
+          <line x1="160" y1="160" x2="82" y2="82" stroke="rgba(224,108,42,0.08)" stroke-width="0.5"/>
+
+          <!-- scattered particles (outer field) -->
+          <circle cx="40" cy="60" r="1.5" fill="rgba(224,108,42,0.4)"/>
+          <circle cx="280" cy="50" r="1" fill="rgba(224,108,42,0.3)"/>
+          <circle cx="300" cy="120" r="1.5" fill="rgba(224,108,42,0.35)"/>
+          <circle cx="20" cy="200" r="1" fill="rgba(224,108,42,0.3)"/>
+          <circle cx="290" cy="260" r="1.5" fill="rgba(224,108,42,0.4)"/>
+          <circle cx="60" cy="280" r="1" fill="rgba(224,108,42,0.3)"/>
+          <circle cx="100" cy="30" r="1.5" fill="rgba(224,108,42,0.35)"/>
+          <circle cx="220" cy="290" r="1" fill="rgba(224,108,42,0.3)"/>
+          <!-- hairlines connecting outer -->
+          <line x1="40" y1="60" x2="100" y2="30" stroke="rgba(224,108,42,0.2)" stroke-width="0.5"/>
+          <line x1="280" y1="50" x2="300" y2="120" stroke="rgba(224,108,42,0.2)" stroke-width="0.5"/>
+          <line x1="290" y1="260" x2="220" y2="290" stroke="rgba(224,108,42,0.2)" stroke-width="0.5"/>
+
+          <!-- mid-ring particles -->
+          <circle cx="265" cy="160" r="1.5" fill="rgba(224,108,42,0.5)"/>
+          <circle cx="55" cy="160" r="1.5" fill="rgba(224,108,42,0.5)"/>
+          <circle cx="160" cy="90" r="1.5" fill="rgba(224,108,42,0.5)"/>
+          <circle cx="160" cy="230" r="1.5" fill="rgba(224,108,42,0.5)"/>
+          <circle cx="235" cy="95" r="1.5" fill="rgba(224,108,42,0.45)"/>
+          <circle cx="85" cy="225" r="1.5" fill="rgba(224,108,42,0.45)"/>
+          <circle cx="235" cy="225" r="1.5" fill="rgba(224,108,42,0.45)"/>
+          <circle cx="85" cy="95" r="1.5" fill="rgba(224,108,42,0.45)"/>
+
+          <!-- inner ring particles -->
+          <circle cx="212" cy="160" r="1.5" fill="rgba(224,108,42,0.65)"/>
+          <circle cx="108" cy="160" r="1.5" fill="rgba(224,108,42,0.65)"/>
+          <circle cx="160" cy="128" r="1.5" fill="rgba(224,108,42,0.65)"/>
+          <circle cx="160" cy="192" r="1.5" fill="rgba(224,108,42,0.65)"/>
+
+          <!-- experiment card orbits (shown as dashed) -->
+          <ellipse cx="160" cy="160" rx="110" ry="44" fill="none" stroke="rgba(224,108,42,0.25)" stroke-width="1" stroke-dasharray="4 3"/>
+
+          <!-- 7 card position markers on orbit -->
+          <rect x="256" y="154" width="18" height="12" fill="rgba(224,108,42,0.15)" stroke="rgba(224,108,42,0.7)" stroke-width="0.8"/>
+          <text x="265" y="162" font-family="monospace" font-size="5" fill="rgba(224,108,42,0.9)" text-anchor="middle">007</text>
+          <rect x="228" y="120" width="18" height="12" fill="rgba(224,108,42,0.10)" stroke="rgba(224,108,42,0.5)" stroke-width="0.8"/>
+          <text x="237" y="128" font-family="monospace" font-size="5" fill="rgba(224,108,42,0.7)" text-anchor="middle">006</text>
+          <rect x="152" y="109" width="18" height="12" fill="rgba(224,108,42,0.10)" stroke="rgba(224,108,42,0.4)" stroke-width="0.8"/>
+          <text x="161" y="117" font-family="monospace" font-size="5" fill="rgba(224,108,42,0.6)" text-anchor="middle">005</text>
+          <rect x="74" y="120" width="18" height="12" fill="rgba(224,108,42,0.08)" stroke="rgba(224,108,42,0.35)" stroke-width="0.8"/>
+          <text x="83" y="128" font-family="monospace" font-size="5" fill="rgba(224,108,42,0.5)" text-anchor="middle">004</text>
+          <rect x="48" y="154" width="18" height="12" fill="rgba(224,108,42,0.06)" stroke="rgba(224,108,42,0.30)" stroke-width="0.8"/>
+          <text x="57" y="162" font-family="monospace" font-size="5" fill="rgba(224,108,42,0.4)" text-anchor="middle">003</text>
+          <rect x="74" y="188" width="18" height="12" fill="rgba(224,108,42,0.06)" stroke="rgba(224,108,42,0.25)" stroke-width="0.8"/>
+          <text x="83" y="196" font-family="monospace" font-size="5" fill="rgba(224,108,42,0.4)" text-anchor="middle">002</text>
+          <rect x="152" y="199" width="18" height="12" fill="rgba(224,108,42,0.06)" stroke="rgba(224,108,42,0.22)" stroke-width="0.8"/>
+          <text x="161" y="207" font-family="monospace" font-size="5" fill="rgba(224,108,42,0.35)" text-anchor="middle">001</text>
+
+          <!-- vortex core -->
+          <circle cx="160" cy="160" r="6" fill="rgba(224,108,42,0.3)" stroke="rgba(224,108,42,0.8)" stroke-width="1"/>
+          <circle cx="160" cy="160" r="2" fill="#E06C2A"/>
+
+          <!-- corner marks -->
+          <path d="M 10 20 L 10 10 L 20 10" fill="none" stroke="rgba(224,108,42,0.4)" stroke-width="1"/>
+          <path d="M 300 20 L 300 10 L 310 10" fill="none" stroke="rgba(224,108,42,0.4)" stroke-width="1"/>
+          <path d="M 10 300 L 10 310 L 20 310" fill="none" stroke="rgba(224,108,42,0.4)" stroke-width="1"/>
+          <path d="M 300 300 L 300 310 L 310 310" fill="none" stroke="rgba(224,108,42,0.4)" stroke-width="1"/>
+
+          <!-- label -->
+          <text x="10" y="315" font-family="monospace" font-size="6" fill="rgba(130,128,112,0.6)" letter-spacing="1">VORTEX CORE // PARTICLE FIELD // ORBITAL PATH</text>
+        </svg>
+      </div>
+
+      <div class="vortex-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--accent);border-radius:50%;"></div>
+          <div class="legend-text">
+            <h4>PARTICLE VORTEX CORE</h4>
+            <p>Particles converge into a spiral formation. Denser at center, sparser at outer field. Continuous slow rotation on Y-axis. This is the visual anchor of the entire site.</p>
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="border:1px dashed var(--accent);"></div>
+          <div class="legend-text">
+            <h4>ORBITAL PATH (DASHED)</h4>
+            <p>Invisible in final render — shown here for reference. 7 experiment cards emerge at equally-spaced positions along this elliptical orbit, newest (007) first.</p>
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="border:1px solid var(--accent);background:rgba(224,108,42,0.15);"></div>
+          <div class="legend-text">
+            <h4>EXPERIMENT CARDS</h4>
+            <p>Each card is a floating 2D overlay panel. On each scroll step, the next card swirls into view around the vortex. 7 scroll steps = all 7 cards visible and orbiting.</p>
+          </div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--border);"></div>
+          <div class="legend-text">
+            <h4>OUTER PARTICLE FIELD</h4>
+            <p>Sparse particles with hairline connections throughout the canvas. Always visible across all sections — the vortex is embedded in, and emerges from, the broader field.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCROLL TIMELINE -->
+  <div class="block">
+    <div class="section-header">
+      <span class="section-code">SCROLL</span>
+      <span class="section-title">Full Scroll Timeline — 13 Steps</span>
+      <span class="section-note">EASE-OUT CUBIC // GSAP SCROLLTRIGGER</span>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-axis"></div>
+
+      <!-- V0 ENTRY -->
+      <div class="tl-phase">
+        <div class="tl-phase-header major">
+          <div class="ph-scroll-label">SCROLL 0%</div>
+          <div class="ph-code">V0</div>
+          <div class="ph-title">HERO — VORTEX LANDING</div>
+          <div class="ph-desc">Particle vortex fills canvas. "MAX'S LAB" display text + tagline overlay. E14 ruler strip. Vortex slowly rotates. Scroll indicator pulses.</div>
+        </div>
+      </div>
+
+      <!-- V1 EXPERIMENTS — 7 sub-steps -->
+      <div class="tl-phase">
+        <div class="tl-phase-header major">
+          <div class="ph-scroll-label">SCROLL 10%</div>
+          <div class="ph-code">V1</div>
+          <div class="ph-title">THE LAB — EXPERIMENT PHASE BEGINS</div>
+          <div class="ph-desc">Camera shifts slightly. "THE LAB — 007 EXPERIMENTS" label animates in. Vortex intensifies. First card ready to emerge.</div>
+        </div>
+        <div class="tl-sub-row">
+          <div class="sr-scroll">SCROLL 18%</div>
+          <div class="sr-num">007</div>
+          <div>
+            <div class="sr-title">AAVR Sound</div>
+            <div class="sr-sub">aavr.soundv01.mleungphd.org · Two-act scroll-free data viz with generative sound</div>
+          </div>
+          <div class="sr-tag emerge">EMERGE ↗</div>
+        </div>
+        <div class="tl-sub-row">
+          <div class="sr-scroll">SCROLL 26%</div>
+          <div class="sr-num">006</div>
+          <div>
+            <div class="sr-title">AAVR Fluidv02</div>
+            <div class="sr-sub">aavr.fluidv02.mleungphd.org · Singular fluid trail iteration</div>
+          </div>
+          <div class="sr-tag emerge">EMERGE ↗</div>
+        </div>
+        <div class="tl-sub-row">
+          <div class="sr-scroll">SCROLL 34%</div>
+          <div class="sr-num">005</div>
+          <div>
+            <div class="sr-title">AAVR Fluid</div>
+            <div class="sr-sub">aavr.fluid.mleungphd.org · Generative fluid trails of hate crime data</div>
+          </div>
+          <div class="sr-tag emerge">EMERGE ↗</div>
+        </div>
+        <div class="tl-sub-row">
+          <div class="sr-scroll">SCROLL 42%</div>
+          <div class="sr-num">004</div>
+          <div>
+            <div class="sr-title">AAVRv01</div>
+            <div class="sr-sub">aavrv01.mleungphd.org · Prototype using radiant flares</div>
+          </div>
+          <div class="sr-tag emerge">EMERGE ↗</div>
+        </div>
+        <div class="tl-sub-row">
+          <div class="sr-scroll">SCROLL 50%</div>
+          <div class="sr-num">003</div>
+          <div>
+            <div class="sr-title">Disturbance Fields</div>
+            <div class="sr-sub">disturbance.mleungphd.org · Anti-Asian violence SF 2019–2022</div>
+          </div>
+          <div class="sr-tag emerge">EMERGE ↗</div>
+        </div>
+        <div class="tl-sub-row">
+          <div class="sr-scroll">SCROLL 58%</div>
+          <div class="sr-num">002</div>
+          <div>
+            <div class="sr-title">AI Finance Web</div>
+            <div class="sr-sub">aifinance.mleungphd.org · Interactive AI ecosystem map</div>
+          </div>
+          <div class="sr-tag emerge">EMERGE ↗</div>
+        </div>
+        <div class="tl-sub-row">
+          <div class="sr-scroll">SCROLL 65%</div>
+          <div class="sr-num">001</div>
+          <div>
+            <div class="sr-title">AAPI Grocery Index</div>
+            <div class="sr-sub">inflation.mleungphd.org · Inflation tracking on Asian foods</div>
+          </div>
+          <div class="sr-tag emerge">EMERGE ↗</div>
+        </div>
+      </div>
+
+      <!-- V2 WRITING -->
+      <div class="tl-phase">
+        <div class="tl-phase-header major">
+          <div class="ph-scroll-label">SCROLL 72%</div>
+          <div class="ph-code">V2</div>
+          <div class="ph-title">WRITING — SECTION TRANSITION</div>
+          <div class="ph-desc">Camera repositions. Cards dissolve back. Writing overlay fades in. Newest to oldest: 2025 featured → 2018 → 2013.</div>
+        </div>
+      </div>
+
+      <!-- V3 ABOUT -->
+      <div class="tl-phase">
+        <div class="tl-phase-header major">
+          <div class="ph-scroll-label">SCROLL 84%</div>
+          <div class="ph-code">V3</div>
+          <div class="ph-title">ABOUT — SECTION TRANSITION</div>
+          <div class="ph-desc">Camera continues. Mission statement overlay. E3 compass, E68 arc decoration. Focus areas displayed as data fields.</div>
+        </div>
+      </div>
+
+      <!-- V4 CONTACT -->
+      <div class="tl-phase">
+        <div class="tl-phase-header major">
+          <div class="ph-scroll-label">SCROLL 100%</div>
+          <div class="ph-code">V4</div>
+          <div class="ph-title">CONTACT — FINAL STOP</div>
+          <div class="ph-desc">Camera settles. Contact CTA + social links. E61 signature strip mandatory. Vortex slows to idle.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NAV SPEC -->
+  <div class="block">
+    <div class="section-header">
+      <span class="section-code">NAV</span>
+      <span class="section-title">Top HUD Bar — Plain Text Jumps</span>
+      <span class="section-note">TELEPORTS CAMERA TO SECTION ENTRY POINT</span>
+    </div>
+    <div class="nav-spec">
+      <div class="nav-row">
+        <div class="nav-logo">MAX'S LAB</div>
+        <div class="nav-links">
+          <div class="nav-link active">LAB</div>
+          <div class="nav-link">WRITING</div>
+          <div class="nav-link">ABOUT</div>
+          <div class="nav-link">CONTACT</div>
+        </div>
+      </div>
+      <div class="nav-note">
+        › Each label jumps the GSAP ScrollTrigger progress to the section's entry scroll position.<br>
+        › Active state: accent-colored underline on current section.<br>
+        › "LAB" jumps to V1 entry (scroll 10%). Other sections jump to their phase start.<br>
+        › E35 strip renders as HUD bar background decoration.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-sig">
+    <div>
+      <div class="sig-line">DESIGNED BY MAXWELL LEUNG, PH.D. USING CLAUDE CODE ©2026</div>
+      <div class="sig-line" style="margin-top:4px;"><span class="sig-hash">#VibeCodingIsLife</span></div>
+    </div>
+    <div style="text-align:right;">
+      <div class="sig-line">SN: 4892-001A-99X · REF: KUI-MG-V02</div>
+      <div class="sig-line">STAGE 2 REVISED — VORTEX MODEL</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

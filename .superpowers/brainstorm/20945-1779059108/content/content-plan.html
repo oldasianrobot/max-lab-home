@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stage 2 — Content Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:     #1C1A17;
+    --text:   #F5F0E8;
+    --accent: #E06C2A;
+    --alert:  #CC2200;
+    --micro:  #8A8070;
+    --grid:   rgba(74,69,64,0.20);
+    --border: rgba(74,69,64,0.50);
+    --surface:#221F1B;
+  }
+
+  body {
+    font-family: 'Roboto Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: 74px 74px;
+  }
+
+  .hud-top {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 44px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+    z-index: 100;
+  }
+  .hud-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--micro); }
+  .rec-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--alert); animation: blink 1s step-end infinite; display: inline-block; margin-right: 6px; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .rec-label { font-size: 0.6rem; letter-spacing: 0.12em; color: var(--alert); text-transform: uppercase; display: flex; align-items: center; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 72px 32px 80px; }
+
+  .page-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px; margin-bottom: 40px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+  }
+  .page-title { font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
+  .page-sub { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--micro); margin-top: 6px; }
+  .config-summary {
+    font-size: 0.55rem; letter-spacing: 0.10em; text-align: right; color: var(--micro); line-height: 2;
+  }
+  .config-val { color: var(--accent); }
+
+  /* Track diagram */
+  .track-section { margin-bottom: 48px; }
+  .section-header {
+    display: flex; align-items: baseline; gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px; margin-bottom: 24px;
+  }
+  .section-code { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+  .section-title { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; }
+  .section-note { font-size: 0.6rem; color: var(--micro); letter-spacing: 0.08em; margin-left: auto; }
+
+  /* camera track horizontal strip */
+  .camera-track {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 32px; position: relative;
+    overflow-x: auto; padding-bottom: 8px;
+  }
+  .track-line {
+    flex: 1; height: 1px; background: var(--border); min-width: 24px; max-width: 60px;
+  }
+  .track-stop {
+    flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .stop-dot {
+    width: 12px; height: 12px; border: 1px solid var(--accent);
+    background: var(--bg); position: relative;
+  }
+  .stop-dot.active { background: var(--accent); }
+  .stop-label { font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--micro); white-space: nowrap; }
+  .stop-label.active { color: var(--accent); }
+  .stop-id { font-size: 0.65rem; font-weight: 600; color: var(--text); }
+
+  /* view cards */
+  .views-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+  .view-card {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    position: relative; overflow: hidden;
+  }
+  .view-card::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(74,69,64,0.15) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(74,69,64,0.15) 1px, transparent 1px);
+    background-size: 37px 37px;
+    pointer-events: none;
+  }
+
+  .vc-header {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .vc-stop { font-size: 0.55rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+  .vc-title { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px; }
+
+  .vc-body { padding: 12px; }
+
+  /* mini viewport mockup */
+  .viewport-mock {
+    width: 100%; height: 110px;
+    border: 1px solid rgba(74,69,64,0.4);
+    background: #1C1A17;
+    position: relative; overflow: hidden;
+    margin-bottom: 10px;
+  }
+  /* corner marks */
+  .cm { position: absolute; width: 10px; height: 10px; }
+  .cm-tl { top: 4px; left: 4px; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+  .cm-tr { top: 4px; right: 4px; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+  .cm-bl { bottom: 4px; left: 4px; border-bottom: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+  .cm-br { bottom: 4px; right: 4px; border-bottom: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+
+  /* particles in viewport */
+  .vp-particle { position: absolute; border-radius: 50%; background: var(--accent); }
+  .vp-line { position: absolute; height: 1px; background: rgba(224,108,42,0.35); transform-origin: left center; }
+
+  /* text overlay mockup */
+  .vp-text-block {
+    position: absolute;
+    left: 14px; bottom: 14px;
+  }
+  .vp-display { font-size: 0.6rem; font-weight: 700; letter-spacing: -0.04em; color: var(--text); line-height: 1.1; }
+  .vp-micro { font-size: 0.45rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--micro); margin-top: 4px; }
+  .vp-accent-bar { width: 20px; height: 1px; background: var(--accent); margin-top: 4px; }
+
+  /* card grid mockup */
+  .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; position: absolute; right: 6px; top: 6px; bottom: 6px; width: 45%; }
+  .mini-card { border: 1px solid rgba(224,108,42,0.3); background: rgba(224,108,42,0.04); }
+
+  /* single panel mockup */
+  .vp-panel {
+    position: absolute; left: 10px; right: 10px; top: 10px; bottom: 10px;
+    border: 1px solid rgba(224,108,42,0.4); background: rgba(224,108,42,0.04);
+    padding: 6px;
+  }
+  .vp-panel-line { height: 1px; background: rgba(74,69,64,0.5); margin-bottom: 4px; }
+  .vp-panel-text { font-size: 0.4rem; color: var(--micro); letter-spacing: 0.06em; line-height: 1.5; }
+
+  /* content list */
+  .content-list { list-style: none; }
+  .content-list li {
+    font-size: 0.6rem; color: var(--micro); line-height: 1.6; letter-spacing: 0.02em;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(74,69,64,0.25);
+    display: flex; gap: 6px; align-items: baseline;
+  }
+  .content-list li:last-child { border-bottom: none; }
+  .cli-bullet { color: var(--accent); flex-shrink: 0; }
+  .cli-text { color: var(--text); font-size: 0.6rem; }
+  .cli-sub { color: var(--micro); font-size: 0.55rem; display: block; margin-top: 1px; }
+
+  /* micrographics badge list */
+  .mg-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .mg-badge {
+    font-size: 0.5rem; letter-spacing: 0.10em; text-transform: uppercase;
+    border: 1px solid var(--border); padding: 2px 5px; color: var(--micro);
+  }
+  .mg-badge.tier1 { border-color: var(--accent); color: var(--accent); }
+  .mg-badge.mandatory { border-color: var(--alert); color: var(--alert); }
+
+  /* camera spec */
+  .cam-spec {
+    font-size: 0.5rem; letter-spacing: 0.08em; color: var(--micro);
+    margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border);
+  }
+  .cam-val { color: var(--text); }
+
+  /* FX summary bar */
+  .fx-bar {
+    display: flex; gap: 8px; align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .fx-chip {
+    font-size: 0.55rem; letter-spacing: 0.10em; text-transform: uppercase;
+    border: 1px solid var(--accent); padding: 3px 8px; color: var(--accent);
+  }
+  .fx-label { font-size: 0.6rem; color: var(--micro); letter-spacing: 0.08em; }
+
+  /* scroll track diagram */
+  .scroll-diagram {
+    display: flex; align-items: center; gap: 6px;
+    padding: 14px; background: var(--surface); border: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .sd-label { font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--micro); width: 80px; flex-shrink: 0; }
+  .sd-track { flex: 1; height: 1px; background: var(--border); position: relative; }
+  .sd-stop-mark { position: absolute; top: -4px; width: 1px; height: 9px; background: var(--accent); }
+  .sd-stop-label { position: absolute; top: 10px; font-size: 0.4rem; letter-spacing: 0.08em; color: var(--micro); transform: translateX(-50%); white-space: nowrap; }
+  .sd-head { position: absolute; top: -5px; left: 0; width: 8px; height: 11px; background: var(--accent); }
+  .sd-note { font-size: 0.5rem; color: var(--micro); letter-spacing: 0.06em; width: 120px; text-align: right; flex-shrink: 0; line-height: 1.5; }
+
+  /* footer */
+  .footer-sig {
+    border-top: 1px solid var(--border); padding-top: 16px; margin-top: 48px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .sig-line { font-size: 0.6rem; letter-spacing: 0.10em; color: var(--micro); }
+  .sig-hash { color: var(--accent); }
+
+  @media (max-width: 1000px) {
+    .views-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 700px) {
+    .views-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="hud-top">
+  <span class="hud-label">MAX-LAB — STAGE 2: CONTENT PLAN // P4·A3·B1·C1·C2·C3</span>
+  <span class="rec-label"><span class="rec-dot"></span>REC [ACTIVE]</span>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">CONTENT PLAN</div>
+      <div class="page-sub">5-stop kinematic scroll track — warm oxide protocol</div>
+    </div>
+    <div class="config-summary">
+      P4 <span class="config-val">WARM OXIDE</span><br>
+      A3 <span class="config-val">PARTICLE FIELD</span><br>
+      B1 <span class="config-val">KINEMATIC SCROLL</span><br>
+      C1+C2+C3 <span class="config-val">CHROMA · SCAN · GHOST</span>
+    </div>
+  </div>
+
+  <!-- CAMERA TRACK -->
+  <div class="track-section">
+    <div class="section-header">
+      <span class="section-code">TRACK</span>
+      <span class="section-title">3D Camera Path</span>
+      <span class="section-note">EASE-OUT CUBIC // 800–1200MS TRANSITIONS</span>
+    </div>
+
+    <div class="scroll-diagram">
+      <div class="sd-label">SCROLL → CAM</div>
+      <div class="sd-track">
+        <div class="sd-head"></div>
+        <div class="sd-stop-mark" style="left:0%"><div class="sd-stop-label">V0<br>ENTRY</div></div>
+        <div class="sd-stop-mark" style="left:25%"><div class="sd-stop-label">V1<br>LAB</div></div>
+        <div class="sd-stop-mark" style="left:50%"><div class="sd-stop-label">V2<br>WRITING</div></div>
+        <div class="sd-stop-mark" style="left:75%"><div class="sd-stop-label">V3<br>ABOUT</div></div>
+        <div class="sd-stop-mark" style="left:100%"><div class="sd-stop-label">V4<br>CONTACT</div></div>
+      </div>
+      <div class="sd-note">5 STOPS<br>SCROLL-DRIVEN<br>NO ELASTIC</div>
+    </div>
+
+    <!-- camera track dots -->
+    <div class="camera-track">
+      <div class="track-stop">
+        <div class="stop-dot active"></div>
+        <div class="stop-id">V0</div>
+        <div class="stop-label active">ENTRY</div>
+      </div>
+      <div class="track-line"></div>
+      <div class="track-stop">
+        <div class="stop-dot"></div>
+        <div class="stop-id">V1</div>
+        <div class="stop-label">LAB</div>
+      </div>
+      <div class="track-line"></div>
+      <div class="track-stop">
+        <div class="stop-dot"></div>
+        <div class="stop-id">V2</div>
+        <div class="stop-label">WRITING</div>
+      </div>
+      <div class="track-line"></div>
+      <div class="track-stop">
+        <div class="stop-dot"></div>
+        <div class="stop-id">V3</div>
+        <div class="stop-label">ABOUT</div>
+      </div>
+      <div class="track-line"></div>
+      <div class="track-stop">
+        <div class="stop-dot"></div>
+        <div class="stop-id">V4</div>
+        <div class="stop-label">CONTACT</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LENS FX SUMMARY -->
+  <div class="track-section">
+    <div class="section-header">
+      <span class="section-code">FX</span>
+      <span class="section-title">Active Lens Effects</span>
+      <span class="section-note">DESKTOP ONLY FOR C1·C3 // C2 ALL VIEWPORTS</span>
+    </div>
+    <div class="fx-bar">
+      <div class="fx-chip">C1 CHROMATIC ABERRATION</div>
+      <div class="fx-chip">C2 SCANLINE OVERLAY</div>
+      <div class="fx-chip">C3 MOTION GHOSTING</div>
+      <div class="fx-label">— C1+C3 disabled on mobile (&lt;768px) // C2 CSS-only, stays active</div>
+    </div>
+  </div>
+
+  <!-- FIVE VIEW CARDS -->
+  <div class="track-section">
+    <div class="section-header">
+      <span class="section-code">VIEWS</span>
+      <span class="section-title">Section Breakdown</span>
+      <span class="section-note">MICROGRAPHICS COMPONENTS PER STOP</span>
+    </div>
+
+    <div class="views-grid">
+
+      <!-- V0: ENTRY / HERO -->
+      <div class="view-card">
+        <div class="vc-header">
+          <div>
+            <div class="vc-stop">V0 · ENTRY</div>
+            <div class="vc-title">HERO</div>
+          </div>
+        </div>
+        <div class="vc-body">
+          <div class="viewport-mock">
+            <div class="cm cm-tl"></div><div class="cm cm-tr"></div>
+            <div class="cm cm-bl"></div><div class="cm cm-br"></div>
+            <!-- particles -->
+            <div class="vp-particle" style="width:3px;height:3px;top:22%;left:30%;"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:40%;left:55%;"></div>
+            <div class="vp-particle" style="width:3px;height:3px;top:60%;left:42%;"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:28%;left:72%;"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:70%;left:65%;"></div>
+            <div class="vp-particle" style="width:3px;height:3px;top:18%;left:18%;"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:50%;left:80%;"></div>
+            <div class="vp-line" style="width:70px;top:24%;left:30%;transform:rotate(15deg);"></div>
+            <div class="vp-line" style="width:55px;top:42%;left:50%;transform:rotate(-22deg);"></div>
+            <div class="vp-line" style="width:60px;top:30%;left:68%;transform:rotate(30deg);"></div>
+            <!-- text overlay -->
+            <div class="vp-text-block">
+              <div class="vp-display">MAX'S<br>LAB</div>
+              <div class="vp-accent-bar"></div>
+              <div class="vp-micro">LEARNING LAB</div>
+            </div>
+            <!-- E14 ruler strip hint -->
+            <div style="position:absolute;bottom:0;left:0;right:0;height:8px;border-top:1px solid rgba(224,108,42,0.4);display:flex;gap:4px;padding:0 4px;align-items:center;">
+              <div style="width:3px;height:4px;background:rgba(224,108,42,0.5);"></div>
+              <div style="width:3px;height:3px;background:rgba(224,108,42,0.3);"></div>
+              <div style="width:3px;height:4px;background:rgba(224,108,42,0.5);"></div>
+              <div style="width:3px;height:2px;background:rgba(224,108,42,0.3);"></div>
+              <div style="width:3px;height:4px;background:rgba(224,108,42,0.5);"></div>
+              <div style="width:3px;height:3px;background:rgba(224,108,42,0.3);"></div>
+              <div style="width:3px;height:4px;background:rgba(224,108,42,0.5);"></div>
+            </div>
+          </div>
+          <ul class="content-list">
+            <li><span class="cli-bullet">›</span><span class="cli-text">DISPLAY: "MAX'S LAB"<span class="cli-sub">Roboto Mono 700, clamp 2.5–4.5rem</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">SUBHEAD: Mission tagline<span class="cli-sub">Vibe coding as creative practice</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">Particle field: full canvas<span class="cli-sub">~4000 vertices, hairline mesh</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">Scroll CTA indicator</span></li>
+          </ul>
+          <div class="mg-list">
+            <div class="mg-badge tier1">E14 RULER</div>
+            <div class="mg-badge">E3 CROSSHAIR</div>
+            <div class="mg-badge">E68 STATUS</div>
+            <div class="mg-badge mandatory">E61 SIG ★</div>
+          </div>
+          <div class="cam-spec">CAM COORD <span class="cam-val">[0, 0, 8]</span> · FOV <span class="cam-val">50°</span></div>
+        </div>
+      </div>
+
+      <!-- V1: LAB / EXPERIMENTS -->
+      <div class="view-card">
+        <div class="vc-header">
+          <div>
+            <div class="vc-stop">V1 · LAB</div>
+            <div class="vc-title">EXPERIMENTS</div>
+          </div>
+        </div>
+        <div class="vc-body">
+          <div class="viewport-mock">
+            <div class="cm cm-tl"></div><div class="cm cm-tr"></div>
+            <div class="cm cm-bl"></div><div class="cm cm-br"></div>
+            <!-- sparse particles remain visible -->
+            <div class="vp-particle" style="width:2px;height:2px;top:15%;left:10%;opacity:0.5;"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:80%;left:85%;opacity:0.4;"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:50%;left:5%;opacity:0.3;"></div>
+            <!-- project card grid overlay -->
+            <div class="mini-grid">
+              <div class="mini-card"></div>
+              <div class="mini-card" style="border-color:rgba(224,108,42,0.5);background:rgba(224,108,42,0.06);"></div>
+              <div class="mini-card"></div>
+              <div class="mini-card"></div>
+              <div class="mini-card"></div>
+              <div class="mini-card"></div>
+            </div>
+            <div class="vp-text-block">
+              <div class="vp-micro">V1 · THE LAB</div>
+              <div class="vp-display" style="font-size:0.55rem;">7 EXPERIMENTS</div>
+              <div class="vp-accent-bar"></div>
+            </div>
+          </div>
+          <ul class="content-list">
+            <li><span class="cli-bullet">›</span><span class="cli-text">HEADLINE: "THE LAB"<span class="cli-sub">+ project count label</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">001 AAPI Grocery Index<span class="cli-sub">inflation.mleungphd.org</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">002 AI Finance Web<span class="cli-sub">aifinance.mleungphd.org</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">003–007 AAVR series<span class="cli-sub">Fluid · Fluidv02 · Sound</span></span></li>
+          </ul>
+          <div class="mg-list">
+            <div class="mg-badge tier1">E49 FLOWPATH</div>
+            <div class="mg-badge">E58 DATA BLOCK</div>
+            <div class="mg-badge">E38 ARROWS</div>
+          </div>
+          <div class="cam-spec">CAM COORD <span class="cam-val">[6, 1, 5]</span> · TWEEN <span class="cam-val">1000ms</span></div>
+        </div>
+      </div>
+
+      <!-- V2: WRITING -->
+      <div class="view-card">
+        <div class="vc-header">
+          <div>
+            <div class="vc-stop">V2 · WRITING</div>
+            <div class="vc-title">WRITING</div>
+          </div>
+        </div>
+        <div class="vc-body">
+          <div class="viewport-mock">
+            <div class="cm cm-tl"></div><div class="cm cm-tr"></div>
+            <div class="cm cm-bl"></div><div class="cm cm-br"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:10%;left:88%;opacity:0.4;"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:85%;left:12%;opacity:0.3;"></div>
+            <!-- writing panel -->
+            <div class="vp-panel">
+              <div class="vp-panel-line"></div>
+              <div class="vp-panel-text">FEATURED // 2025</div>
+              <div style="height:6px;"></div>
+              <div class="vp-panel-text" style="color:var(--text);font-size:0.45rem;line-height:1.4;">Seeing Through Data:<br>A Critical Review of Stop AAPI Hate</div>
+              <div style="height:4px;"></div>
+              <div class="vp-panel-line"></div>
+              <div class="vp-panel-text">JAN 2018 · AUG 2013</div>
+            </div>
+            <div style="position:absolute;right:10px;bottom:14px;">
+              <div style="font-size:0.4rem;letter-spacing:0.10em;color:var(--accent);text-transform:uppercase;">READ →</div>
+            </div>
+          </div>
+          <ul class="content-list">
+            <li><span class="cli-bullet">›</span><span class="cli-text">FEATURED (2025)<span class="cli-sub">Seeing Through Data · J. Media &amp; Cultural Studies</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">Points of Departure (Jan 2018)<span class="cli-sub">Hate Crime Statistics Act formation</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">Jeremy Lin (Aug 2013)<span class="cli-sub">Model minority problem</span></span></li>
+          </ul>
+          <div class="mg-list">
+            <div class="mg-badge">E35 STRIP</div>
+            <div class="mg-badge">E58 DATA BLOCK</div>
+            <div class="mg-badge tier1">E14 RULER</div>
+          </div>
+          <div class="cam-spec">CAM COORD <span class="cam-val">[-4, 2, 4]</span> · TWEEN <span class="cam-val">900ms</span></div>
+        </div>
+      </div>
+
+      <!-- V3: ABOUT -->
+      <div class="view-card">
+        <div class="vc-header">
+          <div>
+            <div class="vc-stop">V3 · ABOUT</div>
+            <div class="vc-title">ABOUT</div>
+          </div>
+        </div>
+        <div class="vc-body">
+          <div class="viewport-mock">
+            <div class="cm cm-tl"></div><div class="cm cm-tr"></div>
+            <div class="cm cm-bl"></div><div class="cm cm-br"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:20%;left:80%;opacity:0.35;"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:70%;left:15%;opacity:0.3;"></div>
+            <!-- about layout mockup -->
+            <div style="position:absolute;left:10px;top:10px;right:10px;bottom:10px;display:flex;flex-direction:column;justify-content:space-between;">
+              <div style="border-left:1px solid var(--accent);padding-left:8px;">
+                <div style="font-size:0.4rem;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;">MAXWELL LEUNG PHD</div>
+                <div style="font-size:0.45rem;color:var(--text);letter-spacing:-0.02em;margin-top:3px;line-height:1.4;">A LEARNING LAB EXPLORING<br>VIBE CODING AS PRACTICE</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">
+                <div style="height:16px;border:1px solid var(--border);background:rgba(224,108,42,0.04);"></div>
+                <div style="height:16px;border:1px solid var(--border);"></div>
+                <div style="height:16px;border:1px solid var(--border);"></div>
+                <div style="height:16px;border:1px solid var(--border);background:rgba(224,108,42,0.04);"></div>
+              </div>
+            </div>
+          </div>
+          <ul class="content-list">
+            <li><span class="cli-bullet">›</span><span class="cli-text">Mission statement<span class="cli-sub">Vibe coding as creative practice</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">Focus areas<span class="cli-sub">Data · Asian American politics · Culture</span></span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">Role: CCA Faculty / Researcher</span></li>
+          </ul>
+          <div class="mg-list">
+            <div class="mg-badge">E3 COMPASS</div>
+            <div class="mg-badge">E68 ARC</div>
+            <div class="mg-badge">E35 STRIP</div>
+          </div>
+          <div class="cam-spec">CAM COORD <span class="cam-val">[2, -2, 6]</span> · TWEEN <span class="cam-val">1000ms</span></div>
+        </div>
+      </div>
+
+      <!-- V4: CONTACT -->
+      <div class="view-card">
+        <div class="vc-header">
+          <div>
+            <div class="vc-stop">V4 · CONTACT</div>
+            <div class="vc-title">CONTACT</div>
+          </div>
+        </div>
+        <div class="vc-body">
+          <div class="viewport-mock">
+            <div class="cm cm-tl"></div><div class="cm cm-tr"></div>
+            <div class="cm cm-bl"></div><div class="cm cm-br"></div>
+            <!-- sparse particles -->
+            <div class="vp-particle" style="width:2px;height:2px;top:30%;left:70%;opacity:0.3;"></div>
+            <div class="vp-particle" style="width:2px;height:2px;top:60%;left:25%;opacity:0.25;"></div>
+            <!-- contact layout -->
+            <div style="position:absolute;inset:10px;display:flex;flex-direction:column;justify-content:space-between;">
+              <div>
+                <div style="font-size:0.45rem;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;">CONNECT</div>
+                <div style="font-size:0.42rem;color:var(--text);letter-spacing:0.05em;">hello@mleungphd.org</div>
+              </div>
+              <div style="display:flex;gap:4px;">
+                <div style="border:1px solid var(--border);padding:2px 5px;font-size:0.38rem;color:var(--micro);letter-spacing:0.08em;">GITHUB</div>
+                <div style="border:1px solid var(--border);padding:2px 5px;font-size:0.38rem;color:var(--micro);letter-spacing:0.08em;">LINKEDIN</div>
+                <div style="border:1px solid var(--border);padding:2px 5px;font-size:0.38rem;color:var(--micro);letter-spacing:0.08em;">CCA</div>
+              </div>
+              <!-- E61 sig strip hint -->
+              <div style="border:1px solid rgba(224,108,42,0.3);padding:4px 6px;background:rgba(224,108,42,0.04);">
+                <div style="font-size:0.38rem;color:var(--micro);letter-spacing:0.08em;">DESIGNED BY MAXWELL LEUNG, PH.D. USING CLAUDE CODE ©2026</div>
+                <div style="font-size:0.38rem;color:var(--accent);letter-spacing:0.08em;">#VibeCodingIsLife</div>
+              </div>
+            </div>
+          </div>
+          <ul class="content-list">
+            <li><span class="cli-bullet">›</span><span class="cli-text">CTA: hello@mleungphd.org</span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">GitHub @oldasianrobot</span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">LinkedIn + CCA Faculty page</span></li>
+            <li><span class="cli-bullet">›</span><span class="cli-text">E61 signature strip (mandatory)</span></li>
+          </ul>
+          <div class="mg-list">
+            <div class="mg-badge tier1">E49 FLOWPATH</div>
+            <div class="mg-badge">E38 ARROWS</div>
+            <div class="mg-badge mandatory">E61 SIG ★</div>
+          </div>
+          <div class="cam-spec">CAM COORD <span class="cam-val">[0, -4, 7]</span> · TWEEN <span class="cam-val">1100ms</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PERSISTENT CHROME NOTE -->
+  <div class="track-section">
+    <div class="section-header">
+      <span class="section-code">CHROME</span>
+      <span class="section-title">Persistent UI (All Views)</span>
+      <span class="section-note">ALWAYS VISIBLE</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      <div style="border:1px solid var(--border);padding:14px;background:var(--surface);">
+        <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.08em;margin-bottom:8px;">NAV — TOP HUD BAR</div>
+        <div style="font-size:0.55rem;color:var(--micro);line-height:1.8;">
+          Logo mark · E35 strip background<br>
+          Section labels: LAB / WRITING / ABOUT / CONTACT<br>
+          Active state: accent underline<br>
+          Height: 58px desktop / 44px mobile
+        </div>
+      </div>
+      <div style="border:1px solid var(--border);padding:14px;background:var(--surface);">
+        <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.08em;margin-bottom:8px;">SCROLL PROGRESS INDICATOR</div>
+        <div style="font-size:0.55rem;color:var(--micro);line-height:1.8;">
+          Vertical hairline, right edge<br>
+          Progress fill: accent color<br>
+          Stop labels: V0–V4 micro text<br>
+          1px stroke only, no fill bar
+        </div>
+      </div>
+      <div style="border:1px solid var(--border);padding:14px;background:var(--surface);">
+        <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.08em;margin-bottom:8px;">E61 SIGNATURE STRIP</div>
+        <div style="font-size:0.55rem;color:var(--micro);line-height:1.8;">
+          Anchored to V4 / contact footer<br>
+          "Designed by Maxwell Leung, Ph.D.<br>using CLAUDE CODE ©2026"<br>
+          #VibeCodingIsLife
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-sig">
+    <div>
+      <div class="sig-line">DESIGNED BY MAXWELL LEUNG, PH.D. USING CLAUDE CODE ©2026</div>
+      <div class="sig-line" style="margin-top:4px;"><span class="sig-hash">#VibeCodingIsLife</span></div>
+    </div>
+    <div style="text-align:right;">
+      <div class="sig-line">SN: 4892-001A-99X</div>
+      <div class="sig-line">REF: KUI-MG-V02 // STAGE 2</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
