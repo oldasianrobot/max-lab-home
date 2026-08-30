@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import ParticleBackground from './components/ParticleBackground'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
@@ -50,6 +51,7 @@ export default function App() {
                 <About />
             </main>
             <Contact />
+            <SpeedInsights />
         </>
     )
 }
