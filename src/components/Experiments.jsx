@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import './Experiments.css'
 
-/* Placeholder experiment data */
+/* Experiment data, numbered chronologically. */
 const EXPERIMENTS = [
     {
         num: '001',
@@ -82,10 +82,21 @@ const EXPERIMENTS = [
         tagType: 'amber',
         link: 'https://sato-miller.mleungphd.org',
     },
+    {
+        num: '010',
+        title: 'The Data Center Next Door',
+        desc: <><em>The Data Center Next Door</em> is an educational simulation developed for the Critical Studies Program (Fall 2026) at the California College of the Arts. Students consider how the operation of one massive data center can affect a community over time. Set in the fictional community of Crystal Valley, the simulation follows residents through a decade of decisions concerning CCACore Industries and the social consequences of its facility.</>,
+        date: '2026-09-06',
+        image: '/images/data-center-next-door.jpeg',
+        imageAlt: 'Crystal Valley in the simulation, with residents, mountain scenery, and the proposed data center site.',
+        tags: ['Simulation', 'Social Problems', 'Data Center'],
+        tagType: 'cyan',
+        link: 'https://datacenter.mleungphd.org/',
+    },
 ]
 
 /* How many of the newest projects render in the featured band */
-const FEATURED_COUNT = 2
+const FEATURED_COUNT = 1
 
 /**
  * Projects — Featured latest project plus grid of earlier cards.
@@ -119,9 +130,10 @@ export default function Experiments() {
 }
 
 /** Individual experiment card with mouse-tracking hover glow. */
-function ExperimentCard({ num, title, desc, tag, tags, tagType, link, featured = false }) {
+function ExperimentCard({ num, title, desc, tag, tags, tagType, link, date, image, imageAlt, featured = false }) {
     const tagList = tags ?? (tag ? [tag] : [])
     const cardRef = useRef(null)
+    const Card = featured ? 'a' : 'article'
 
     const handleMouseMove = (e) => {
         const rect = cardRef.current.getBoundingClientRect()
@@ -149,19 +161,24 @@ function ExperimentCard({ num, title, desc, tag, tags, tagType, link, featured =
     }
 
     return (
-        <article
+        <Card
             ref={cardRef}
-            className={`exp-card${featured ? ' exp-card--featured' : ''}`}
+            href={featured ? link : undefined}
+            target={featured ? '_blank' : undefined}
+            rel={featured ? 'noopener noreferrer' : undefined}
+            className={`exp-card${featured ? ' exp-card--featured' : ''}${featured && image ? ' exp-card--with-image' : ''}`}
             onMouseMove={handleMouseMove}
-            onKeyDown={handleKeyDown}
-            onClick={handleClick}
+            onKeyDown={featured ? undefined : handleKeyDown}
+            onClick={featured ? undefined : handleClick}
             tabIndex={0}
             role="link"
             aria-label={`Experiment ${num}: ${title}`}
         >
+            <div className="exp-card__content">
             <span className="exp-card__num">
                 {num}
                 {featured && <span className="exp-card__latest">Latest</span>}
+                {featured && date && <time className="exp-card__date" dateTime={date}>{date}</time>}
             </span>
             <h3 className="exp-card__title">{title}</h3>
             <p className="exp-card__desc">{desc}</p>
@@ -172,7 +189,15 @@ function ExperimentCard({ num, title, desc, tag, tags, tagType, link, featured =
                     </span>
                 ))}
             </span>
-            <span className="exp-card__arrow" aria-hidden="true">→</span>
-        </article>
+            {featured ? (
+                <span className="exp-card__cta">Explore simulation <span aria-hidden="true">↗</span></span>
+            ) : (
+                <span className="exp-card__arrow" aria-hidden="true">→</span>
+            )}
+            </div>
+            {featured && image && (
+                <img className="exp-card__image" src={image} alt={imageAlt} width="2261" height="1558" loading="lazy" />
+            )}
+        </Card>
     )
 }
