@@ -102,7 +102,7 @@ const EXPERIMENTS = [
         imageAlt: 'The magnificent Oracle, an imagined machine built through human contributions.',
         tags: ['Simulation', 'Social Problems', 'AI', 'Digital Labor', 'Digital Sweatshop'],
         tagType: 'cyan',
-        link: 'https://mleungphd.org/oracle/',
+        link: 'https://oracle.mleungphd.org/',
     },
 ]
 

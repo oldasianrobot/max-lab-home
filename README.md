@@ -107,4 +107,4 @@ docs/
 
 ## Oracle hosting (September 16, 2026)
 
-The Projects section features The Oracle and The Below above The Data Center Next Door. Oracle is deployed independently from `oldasianrobot/oracle-and-the-below` in its own Vercel project. This website routes `/oracle/` and its assets to that project, keeping the public URL at https://mleungphd.org/oracle/. The old `/edutech/` page and copied game have been removed, without redirects.
+The Projects section features The Oracle and The Below above The Data Center Next Door. Oracle deploys independently from `oldasianrobot/oracle-and-the-below` in its own Vercel project, at https://oracle.mleungphd.org/. The homepage links directly to that subdomain. There is no game copy or routing dependency in this repository. The old `/edutech/`, `/edutech/oracle/`, and `/oracle/` paths have been removed without redirects.
