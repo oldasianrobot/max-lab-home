@@ -1,0 +1,24 @@
+{
+  "redirects": [
+    {
+      "source": "/edutech",
+      "destination": "/edutech/",
+      "permanent": true
+    },
+    {
+      "source": "/edutech/oracle",
+      "destination": "/edutech/oracle/",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/edutech/",
+      "destination": "/edutech/index.html"
+    },
+    {
+      "source": "/edutech/oracle/",
+      "destination": "/edutech/oracle/index.html"
+    }
+  ]
+}
