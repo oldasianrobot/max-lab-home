@@ -1,24 +1,19 @@
 {
   "redirects": [
     {
-      "source": "/edutech",
-      "destination": "/edutech/",
-      "permanent": true
-    },
-    {
-      "source": "/edutech/oracle",
-      "destination": "/edutech/oracle/",
+      "source": "/oracle",
+      "destination": "/oracle/",
       "permanent": true
     }
   ],
   "rewrites": [
     {
-      "source": "/edutech/",
-      "destination": "/edutech/index.html"
+      "source": "/oracle/",
+      "destination": "https://oracle-and-the-below.vercel.app/"
     },
     {
-      "source": "/edutech/oracle/",
-      "destination": "/edutech/oracle/index.html"
+      "source": "/oracle/:path*",
+      "destination": "https://oracle-and-the-below.vercel.app/:path*"
     }
   ]
 }

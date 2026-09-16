@@ -93,10 +93,21 @@ const EXPERIMENTS = [
         tagType: 'cyan',
         link: 'https://datacenter.mleungphd.org/',
     },
+    {
+        num: '011',
+        title: 'The Oracle and The Below',
+        desc: <><em>The Oracle and The Below</em> is an educational simulation about the human labor behind artificial intelligence. Students describe photographs, correct labels, and make judgments about art as they build the Oracle’s knowledge. Changing rules, hidden standards, and uncertain pay invite students to consider who controls the value of their work.</>,
+        date: '2026-09-16',
+        image: '/images/oracle-and-the-below.webp',
+        imageAlt: 'The magnificent Oracle, an imagined machine built through human contributions.',
+        tags: ['Simulation', 'Social Problems', 'AI', 'Digital Labor', 'Digital Sweatshop'],
+        tagType: 'cyan',
+        link: 'https://mleungphd.org/oracle/',
+    },
 ]
 
 /* How many of the newest projects render in the featured band */
-const FEATURED_COUNT = 1
+const FEATURED_COUNT = 2
 
 /**
  * Projects — Featured latest project plus grid of earlier cards.
@@ -177,7 +188,6 @@ function ExperimentCard({ num, title, desc, tag, tags, tagType, link, date, imag
             <div className="exp-card__content">
             <span className="exp-card__num">
                 {num}
-                {featured && <span className="exp-card__latest">Latest</span>}
                 {featured && date && <time className="exp-card__date" dateTime={date}>{date}</time>}
             </span>
             <h3 className="exp-card__title">{title}</h3>
